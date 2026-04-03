@@ -1,0 +1,21 @@
+{
+  "name": "Hệ thống Quản lý Phương tiện PCCC & CNCH Khu vực 6",
+  "short_name": "QL Xe PCCC",
+  "description": "Ứng dụng quản lý phương tiện, vật tư trực ban chiến đấu",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#dc3545",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/dc3545/white.png?text=PCCC",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://placehold.co/512x512/dc3545/white.png?text=PCCC",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
