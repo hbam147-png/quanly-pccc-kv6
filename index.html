@@ -263,13 +263,13 @@
             showLoading(false);
         }
 
-        // LƯU DỮ LIỆU LÊN MẠNG
+     // LƯU DỮ LIỆU LÊN MẠNG (Đã sửa lỗi CORS)
         async function saveToServer(sheetName, dataArray) {
             showLoading(true, `Đang lưu lên bảng ${sheetName}...`);
             try {
-                // Dùng text/plain để tránh lỗi CORS chặn Post request
-                let response = await fetch(API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
+                    mode: 'no-cors', // Bỏ qua cảnh báo chặn chuyển hướng của Google
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         action: 'saveAll',
@@ -277,10 +277,10 @@
                         data: dataArray
                     })
                 });
-                // Trình duyệt có thể tự catch redirect của Google nên ta không cần check json nếu ko lỗi
+                // Với no-cors, trình duyệt không đọc được phản hồi nhưng dữ liệu vẫn lên tới nơi.
                 renderAll();
             } catch (error) {
-                alert("Đã xảy ra lỗi khi lưu lên máy chủ!");
+                alert("Đã xảy ra lỗi mạng. Vui lòng kiểm tra lại kết nối!");
                 console.error(error);
             }
             showLoading(false);
