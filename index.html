@@ -1,32 +1,495 @@
-async function saveToServer(sheetName, dataArray) {
-    showLoading(true, "Đang lưu dữ liệu...");
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Phương tiện PCCC & CNCH - Đội Khu vực 6</title>
+   
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#dc3545">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QL Xe PCCC">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/dc3545/white.png?text=PCCC">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; }
+        .header { background: linear-gradient(135deg, #dc3545, #0d6efd); color: white; padding: 2rem 0; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-link { color: #495057; font-weight: 500; }
+        .nav-link.active { background-color: #dc3545 !important; color: white !important; font-weight: bold; }
+        .stat-card { transition: all 0.3s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .stat-card.active { border: 3px solid #dc3545; }
+        .status-tot { color: #198754; font-weight: bold; }
+        .status-can { color: #fd7e14; font-weight: bold; }
+        .status-hong { color: #dc3545; font-weight: bold; }
+        .table-responsive { max-height: 520px; overflow-y: auto; }
+        #loadingOverlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,255,255,0.85); z-index: 9999; 
+            display: none; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
+        @media (max-width: 576px) { 
+            .btn { margin-bottom: 8px; font-size: 0.9rem; } 
+            .nav-tabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } 
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner-border mb-3" role="status"></div>
+        <h5 class="text-danger fw-bold" id="loadingText">Đang đồng bộ dữ liệu...</h5>
+    </div>
 
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },   // quan trọng
-            body: JSON.stringify({
-                action: 'saveAll',
-                sheetName: sheetName,
-                data: dataArray
-            })
-        });
+    <div class="header">
+        <h1><i class="fas fa-fire-extinguisher"></i> Đội Chữa cháy & CNCH Khu vực 6</h1>
+        <p>Hệ thống Quản lý Phương tiện & Hậu cần Kỹ thuật (Cloud Sync)</p>
+    </div>
 
-        if (!response.ok) throw new Error('Lỗi server');
+    <div class="container mt-4">
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#dashboard"><i class="fas fa-home"></i> Tổng quan</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#list"><i class="fas fa-truck"></i> DS Phương tiện</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#nhatky"><i class="fas fa-history"></i> Nhật ký BD</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#vattu"><i class="fas fa-boxes"></i> Vật tư tiêu hao</a></li>
+        </ul>
 
-        const result = await response.json();   // thử đọc response
-        console.log('Save result:', result);
+        <div class="tab-content">
+            <!-- Dashboard -->
+            <div class="tab-pane fade show active" id="dashboard">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card stat-card p-3 text-center active" onclick="filterByStatus('all', this)">
+                            <h5>Tổng</h5><h2 id="total" class="text-primary">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stat-card p-3 text-center" onclick="filterByStatus('san-sang', this)">
+                            <h5>Sẵn sàng</h5><h2 id="ready" class="status-tot">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stat-card p-3 text-center" onclick="filterByStatus('can-bd', this)">
+                            <h5>Cần sửa</h5><h2 id="canSua" class="status-can">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stat-card p-3 text-center" onclick="filterByStatus('hong', this)">
+                            <h5>Hỏng</h5><h2 id="hong" class="status-hong">0</h2>
+                        </div>
+                    </div>
+                </div>
 
-        // Chỉ render lại nếu lưu thành công
-        renderAll();
+                <div class="d-flex gap-2 mb-4">
+                    <button class="btn btn-primary flex-fill" onclick="fetchData()">
+                        <i class="fas fa-sync-alt"></i> Tải lại dữ liệu
+                    </button>
+                </div>
 
-    } catch (e) {
-        console.error(e);
-        alert("Lỗi khi lưu dữ liệu! Kiểm tra console để xem chi tiết.");
-        
-        // Vẫn có thể thử reload dữ liệu để đồng bộ lại
-        await fetchData();
-    } finally {
-        showLoading(false);
-    }
-}
+                <div class="table-responsive border rounded bg-white shadow-sm">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-light">
+                            <tr><th>Loại</th><th>Mã</th><th>Tình trạng</th><th>Ngày kiểm định</th></tr>
+                        </thead>
+                        <tbody id="dashboardTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Danh sách phương tiện -->
+            <div class="tab-pane fade" id="list">
+                <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+                    <button class="btn btn-success" onclick="showAddModal()">
+                        <i class="fas fa-plus"></i> Thêm mới
+                    </button>
+                    <input type="text" id="searchInput" class="form-control w-50" placeholder="Tìm kiếm theo loại, mã, tiểu đội..." oninput="filterFullTable()">
+                </div>
+                <div class="table-responsive border rounded bg-white shadow-sm">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr><th>Loại</th><th>Mã</th><th>Tiểu đội</th><th>Phụ trách</th><th>Tình trạng</th><th>Thao tác</th></tr>
+                        </thead>
+                        <tbody id="fullTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Nhật ký bảo dưỡng -->
+            <div class="tab-pane fade" id="nhatky">
+                <button class="btn btn-success mb-3" onclick="showLogModal()">
+                    <i class="fas fa-plus"></i> Thêm Nhật ký
+                </button>
+                <div class="table-responsive border rounded bg-white shadow-sm">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-primary">
+                            <tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th><th>Người làm</th></tr>
+                        </thead>
+                        <tbody id="logTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vật tư -->
+            <div class="tab-pane fade" id="vattu">
+                <button class="btn btn-success mb-3" onclick="showVatTuModal()">
+                    <i class="fas fa-plus"></i> Cập nhật Vật tư
+                </button>
+                <div class="table-responsive border rounded bg-white shadow-sm">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-secondary">
+                            <tr><th>Tên vật tư</th><th>Tồn kho</th><th>Cảnh báo</th><th>Tình trạng</th><th>Thao tác</th></tr>
+                        </thead>
+                        <tbody id="vattuTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Phương tiện -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Thông tin phương tiện</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIndexPT" value="-1">
+                    <div class="mb-3"><label>Loại PT</label><input type="text" id="ptLoai" class="form-control"></div>
+                    <div class="mb-3"><label>Mã ký hiệu</label><input type="text" id="ptKyHieu" class="form-control"></div>
+                    <div class="mb-3"><label>Tiểu đội</label><input type="text" id="ptTieuDoi" class="form-control"></div>
+                    <div class="mb-3"><label>Người phụ trách</label><input type="text" id="ptNguoi" class="form-control"></div>
+                    <div class="mb-3"><label>Tình trạng</label>
+                        <select id="ptTinhTrang" class="form-select">
+                            <option value="Sẵn sàng">Sẵn sàng</option>
+                            <option value="Cần sửa">Cần sửa</option>
+                            <option value="Hỏng">Hỏng</option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label>Ngày kiểm định</label><input type="date" id="ptNgay" class="form-control"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" onclick="savePT()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nhật ký -->
+    <div class="modal fade" id="logModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Thêm Nhật ký bảo dưỡng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label>Ngày</label><input type="date" id="logNgay" class="form-control"></div>
+                    <div class="mb-3"><label>Mã PT</label><input type="text" id="logKyHieu" class="form-control"></div>
+                    <div class="mb-3"><label>Nội dung</label><input type="text" id="logNoiDung" class="form-control"></div>
+                    <div class="mb-3"><label>Người thực hiện</label><input type="text" id="logNguoi" class="form-control"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveLog()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Vật tư -->
+    <div class="modal fade" id="vatTuModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title">Cập nhật Vật tư</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIndexVT" value="-1">
+                    <div class="mb-3"><label>Tên vật tư</label><input type="text" id="vtTen" class="form-control"></div>
+                    <div class="mb-3"><label>Tồn kho</label><input type="number" id="vtTon" class="form-control" min="0"></div>
+                    <div class="mb-3"><label>Cảnh báo khi dưới</label><input type="number" id="vtCanhBao" class="form-control" min="0"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-secondary" style="background:#6c757d;color:white" onclick="saveVT()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ================== CẤU HÌNH ==================
+        const API_URL = "https://script.google.com/macros/s/AKfycbznvPl941KWRG_lHUAGH9HDEBWsE-t7y858sr4keFAM6jAGnPqXmHSUkf_nCJ1gejDN/exec";
+
+        let phuongTienList = [], nhatKyList = [], vatTuList = [], currentFilter = 'all';
+
+        function showLoading(show, text = "Đang đồng bộ dữ liệu...") {
+            const overlay = document.getElementById("loadingOverlay");
+            document.getElementById("loadingText").innerText = text;
+            overlay.style.display = show ? "flex" : "none";
+        }
+
+        async function fetchData() {
+            showLoading(true);
+            try {
+                const response = await fetch(API_URL + "?action=getData");
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                phuongTienList = data.phuongTien || [];
+                nhatKyList     = data.nhatKy || [];
+                vatTuList      = data.vatTu || [];
+
+                renderAll();
+            } catch (e) {
+                console.error(e);
+                alert("Lỗi tải dữ liệu:\n" + e.message + "\n\nVui lòng kiểm tra:\n1. Web App đã deploy với quyền 'Anyone'\n2. URL API có đúng không");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function saveToServer(sheetName, dataArray) {
+            showLoading(true, "Đang lưu dữ liệu...");
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'saveAll',
+                        sheetName: sheetName,
+                        data: dataArray
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+
+                console.log("Lưu thành công:", result);
+                // Tải lại dữ liệu để đồng bộ
+                await fetchData();
+            } catch (e) {
+                console.error(e);
+                alert("Lỗi khi lưu dữ liệu:\n" + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function getStatusClass(status) {
+            const s = (status || '').toString().trim().toLowerCase();
+            if (s.includes('sẵn sàng') || s.includes('đầy đủ')) return 'status-tot';
+            if (s.includes('cần sửa') || s.includes('sắp hết')) return 'status-can';
+            return 'status-hong';
+        }
+
+        function renderAll() {
+            // Cập nhật thống kê
+            document.getElementById('total').textContent = phuongTienList.length;
+            document.getElementById('ready').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang) === 'status-tot').length;
+            document.getElementById('canSua').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang) === 'status-can').length;
+            document.getElementById('hong').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang) === 'status-hong').length;
+
+            renderFilteredTable();
+            renderFullTable();
+            renderNhatKy();
+            renderVatTu();
+        }
+
+        function filterByStatus(filter, element) {
+            currentFilter = filter;
+            document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+            if (element) element.classList.add('active');
+            renderFilteredTable();
+        }
+
+        function renderFilteredTable() {
+            const tbody = document.getElementById('dashboardTableBody');
+            tbody.innerHTML = '';
+            let filtered = phuongTienList;
+
+            if (currentFilter !== 'all') {
+                const targetClass = currentFilter === 'san-sang' ? 'status-tot' : 
+                                  currentFilter === 'can-bd' ? 'status-can' : 'status-hong';
+                filtered = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === targetClass);
+            }
+
+            filtered.forEach(item => {
+                const tt = item.TinhTrang || item.tinhtrang || '—';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.Loai || item.loai || ''}</strong></td>
+                        <td>${item.KyHieu || item.kyhieu || ''}</td>
+                        <td class="${getStatusClass(tt)}">${tt}</td>
+                        <td>${item.NgayKiemDinh || item.ngaykiemtra || '—'}</td>
+                    </tr>`;
+            });
+        }
+
+        function renderFullTable(data = phuongTienList) {
+            const tbody = document.getElementById('fullTableBody');
+            tbody.innerHTML = '';
+            data.forEach((item, index) => {
+                const tt = item.TinhTrang || item.tinhtrang || '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.Loai || ''}</strong></td>
+                        <td>${item.KyHieu || ''}</td>
+                        <td>${item.TieuDoi || ''}</td>
+                        <td>${item.NguoiPhuTrach || ''}</td>
+                        <td class="${getStatusClass(tt)}">${tt}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editPT(${index})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function filterFullTable() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = phuongTienList.filter(i => 
+                Object.values(i).join(' ').toLowerCase().includes(term)
+            );
+            renderFullTable(filtered);
+        }
+
+        function renderNhatKy() {
+            const tbody = document.getElementById('logTableBody');
+            tbody.innerHTML = '';
+            nhatKyList.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.NgayThucHien || ''}</td>
+                        <td><strong>${item.KyHieu || ''}</strong></td>
+                        <td>${item.NoiDung || ''}</td>
+                        <td>${item.NguoiThucHien || ''}</td>
+                    </tr>`;
+            });
+        }
+
+        function renderVatTu() {
+            const tbody = document.getElementById('vattuTableBody');
+            tbody.innerHTML = '';
+            vatTuList.forEach((item, index) => {
+                const ton = parseInt(item.SoLuongTon) || 0;
+                const muc = parseInt(item.DinhMucCanhBao) || 0;
+                const tt = ton > muc ? "Đầy đủ" : (ton > 0 ? "Sắp hết" : "Đã hết");
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.TenVatTu || ''}</strong></td>
+                        <td>${ton}</td>
+                        <td>${muc}</td>
+                        <td class="${getStatusClass(tt)}">${tt}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="editVT(${index})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        // ====================== MODAL ======================
+        function showAddModal() {
+            document.getElementById('editIndexPT').value = -1;
+            ['ptLoai','ptKyHieu','ptTieuDoi','ptNguoi','ptNgay'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('ptTinhTrang').value = 'Sẵn sàng';
+            new bootstrap.Modal(document.getElementById('addModal')).show();
+        }
+
+        function editPT(index) {
+            const item = phuongTienList[index];
+            document.getElementById('editIndexPT').value = index;
+            document.getElementById('ptLoai').value = item.Loai || '';
+            document.getElementById('ptKyHieu').value = item.KyHieu || '';
+            document.getElementById('ptTieuDoi').value = item.TieuDoi || '';
+            document.getElementById('ptNguoi').value = item.NguoiPhuTrach || '';
+            document.getElementById('ptTinhTrang').value = item.TinhTrang || 'Sẵn sàng';
+            document.getElementById('ptNgay').value = item.NgayKiemDinh || '';
+            new bootstrap.Modal(document.getElementById('addModal')).show();
+        }
+
+        function savePT() {
+            const idx = parseInt(document.getElementById('editIndexPT').value);
+            const item = {
+                Loai: document.getElementById('ptLoai').value.trim(),
+                KyHieu: document.getElementById('ptKyHieu').value.trim(),
+                TieuDoi: document.getElementById('ptTieuDoi').value.trim(),
+                NguoiPhuTrach: document.getElementById('ptNguoi').value.trim(),
+                TinhTrang: document.getElementById('ptTinhTrang').value,
+                NgayKiemDinh: document.getElementById('ptNgay').value
+            };
+
+            if (idx === -1) phuongTienList.push(item);
+            else phuongTienList[idx] = item;
+
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+            saveToServer('PhuongTien', phuongTienList);
+        }
+
+        function showLogModal() {
+            document.getElementById('logNgay').valueAsDate = new Date();
+            ['logKyHieu','logNoiDung','logNguoi'].forEach(id => document.getElementById(id).value = '');
+            new bootstrap.Modal(document.getElementById('logModal')).show();
+        }
+
+        function saveLog() {
+            const item = {
+                NgayThucHien: document.getElementById('logNgay').value,
+                KyHieu: document.getElementById('logKyHieu').value.trim(),
+                NoiDung: document.getElementById('logNoiDung').value.trim(),
+                NguoiThucHien: document.getElementById('logNguoi').value.trim()
+            };
+            nhatKyList.unshift(item);
+            bootstrap.Modal.getInstance(document.getElementById('logModal')).hide();
+            saveToServer('NhatKy', nhatKyList);
+        }
+
+        function showVatTuModal() {
+            document.getElementById('editIndexVT').value = -1;
+            ['vtTen','vtTon','vtCanhBao'].forEach(id => document.getElementById(id).value = '');
+            new bootstrap.Modal(document.getElementById('vatTuModal')).show();
+        }
+
+        function editVT(index) {
+            const item = vatTuList[index];
+            document.getElementById('editIndexVT').value = index;
+            document.getElementById('vtTen').value = item.TenVatTu || '';
+            document.getElementById('vtTon').value = item.SoLuongTon || 0;
+            document.getElementById('vtCanhBao').value = item.DinhMucCanhBao || 0;
+            new bootstrap.Modal(document.getElementById('vatTuModal')).show();
+        }
+
+        function saveVT() {
+            const idx = parseInt(document.getElementById('editIndexVT').value);
+            const item = {
+                TenVatTu: document.getElementById('vtTen').value.trim(),
+                SoLuongTon: parseInt(document.getElementById('vtTon').value) || 0,
+                DinhMucCanhBao: parseInt(document.getElementById('vtCanhBao').value) || 0
+            };
+
+            if (idx === -1) vatTuList.push(item);
+            else vatTuList[idx] = item;
+
+            bootstrap.Modal.getInstance(document.getElementById('vatTuModal')).hide();
+            saveToServer('VatTu', vatTuList);
+        }
+
+        // Khởi động
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
