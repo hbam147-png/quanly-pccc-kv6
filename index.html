@@ -26,17 +26,9 @@
         .status-can { color: #fd7e14; font-weight: bold; }
         .status-hong { color: #dc3545; font-weight: bold; }
         .table-responsive { max-height: 520px; overflow-y: auto; }
-        
-        /* Màn hình chờ Loading */
-        #loadingOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            display: none; /* Ẩn mặc định */
-        }
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
-
-        @media (max-width: 576px) { .btn { margin-bottom: 8px; font-size: 0.9rem; } .nav-tabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 5px;} }
+        @media (max-width: 576px) { .btn { margin-bottom: 8px; font-size: 0.9rem; } .nav-tabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } }
     </style>
 </head>
 <body>
@@ -61,43 +53,17 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="dashboard">
                 <div class="row g-3 mb-4">
-                    <div class="col-6 col-md-3">
-                        <div class="card stat-card p-3 text-center active" data-filter="all" onclick="filterByStatus('all', this)">
-                            <h5><i class="fas fa-truck"></i> Tổng xe/bơm</h5>
-                            <h2 id="total" class="text-primary">0</h2>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="card stat-card p-3 text-center" data-filter="san-sang" onclick="filterByStatus('san-sang', this)">
-                            <h5><i class="fas fa-check-circle text-success"></i> Sẵn sàng</h5>
-                            <h2 id="ready" class="status-tot">0</h2>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="card stat-card p-3 text-center" data-filter="can-bd" onclick="filterByStatus('can-bd', this)">
-                            <h5><i class="fas fa-tools text-warning"></i> Cần BD/Sửa</h5>
-                            <h2 id="canSua" class="status-can">0</h2>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="card stat-card p-3 text-center" data-filter="hong" onclick="filterByStatus('hong', this)">
-                            <h5><i class="fas fa-times-circle text-danger"></i> Hỏng</h5>
-                            <h2 id="hong" class="status-hong">0</h2>
-                        </div>
-                    </div>
+                    <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center active" onclick="filterByStatus('all', this)"><h5>Tổng</h5><h2 id="total" class="text-primary">0</h2></div></div>
+                    <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('san-sang', this)"><h5>Sẵn sàng</h5><h2 id="ready" class="status-tot">0</h2></div></div>
+                    <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('can-bd', this)"><h5>Cần sửa</h5><h2 id="canSua" class="status-can">0</h2></div></div>
+                    <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('hong', this)"><h5>Hỏng</h5><h2 id="hong" class="status-hong">0</h2></div></div>
                 </div>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    <button class="btn btn-primary flex-fill" onclick="fetchData()"><i class="fas fa-sync-alt"></i> Tải lại dữ liệu (Làm mới)</button>
-                    <button class="btn btn-warning flex-fill" onclick="exportCSV()"><i class="fas fa-file-export"></i> Xuất danh sách</button>
+                <div class="d-flex gap-2 mb-4">
+                    <button class="btn btn-primary flex-fill" onclick="fetchData()"><i class="fas fa-sync-alt"></i> Tải lại dữ liệu</button>
                 </div>
-
-                <h5 class="mb-3"><i class="fas fa-list"></i> Danh sách nhanh <span id="filterTitle" class="text-muted small">(Tất cả)</span></h5>
                 <div class="table-responsive border rounded bg-white shadow-sm">
                     <table class="table table-hover table-sm mb-0">
-                        <thead class="table-light">
-                            <tr><th>Loại</th><th>Mã</th><th>Tình trạng</th><th>Ngày kiểm định</th></tr>
-                        </thead>
+                        <thead class="table-light"><tr><th>Loại</th><th>Mã</th><th>Tình trạng</th><th>Ngày kiểm định</th></tr></thead>
                         <tbody id="dashboardTableBody"></tbody>
                     </table>
                 </div>
@@ -105,44 +71,32 @@
 
             <div class="tab-pane fade" id="list">
                 <div class="d-flex justify-content-between mb-3">
-                    <button class="btn btn-success" onclick="showAddModal()"><i class="fas fa-plus"></i> Thêm Phương tiện</button>
-                    <input type="text" id="searchInput" class="form-control w-50" placeholder="Tìm phương tiện..." oninput="filterFullTable()">
+                    <button class="btn btn-success" onclick="showAddModal()"><i class="fas fa-plus"></i> Thêm mới</button>
+                    <input type="text" id="searchInput" class="form-control w-50" placeholder="Tìm kiếm..." oninput="filterFullTable()">
                 </div>
                 <div class="table-responsive border rounded bg-white shadow-sm">
                     <table class="table table-hover align-middle">
-                        <thead class="table-dark">
-                            <tr><th>Loại</th><th>Mã</th><th>Tác dụng</th><th>Tiểu đội</th><th>Người phụ trách</th><th>Ngày KĐ</th><th>Tình trạng</th><th>Thao tác</th></tr>
-                        </thead>
+                        <thead class="table-dark"><tr><th>Loại</th><th>Mã</th><th>Tiểu đội</th><th>Phụ trách</th><th>Tình trạng</th><th>Thao tác</th></tr></thead>
                         <tbody id="fullTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="nhatky">
-                <div class="d-flex justify-content-between mb-3">
-                    <button class="btn btn-success" onclick="showLogModal()"><i class="fas fa-plus"></i> Thêm Nhật ký</button>
-                    <input type="text" id="searchLog" class="form-control w-50" placeholder="Tìm theo mã xe, người thực hiện..." oninput="renderNhatKy()">
-                </div>
+                <button class="btn btn-success mb-3" onclick="showLogModal()"><i class="fas fa-plus"></i> Thêm Nhật ký</button>
                 <div class="table-responsive border rounded bg-white shadow-sm">
                     <table class="table table-hover align-middle">
-                        <thead class="table-primary">
-                            <tr><th>Ngày thực hiện</th><th>Mã Phương tiện</th><th>Nội dung công việc</th><th>Người thực hiện</th><th>Ghi chú</th></tr>
-                        </thead>
+                        <thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th><th>Người làm</th></tr></thead>
                         <tbody id="logTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="vattu">
-                <div class="d-flex justify-content-between mb-3">
-                    <button class="btn btn-success" onclick="showVatTuModal()"><i class="fas fa-plus"></i> Thêm/Nhập Vật tư</button>
-                    <input type="text" id="searchVatTu" class="form-control w-50" placeholder="Tìm tên vật tư..." oninput="renderVatTu()">
-                </div>
+                <button class="btn btn-success mb-3" onclick="showVatTuModal()"><i class="fas fa-plus"></i> Cập nhật Vật tư</button>
                 <div class="table-responsive border rounded bg-white shadow-sm">
                     <table class="table table-hover align-middle">
-                        <thead class="table-secondary">
-                            <tr><th>Tên Vật tư</th><th>Đơn vị</th><th>Số lượng tồn</th><th>Mức cảnh báo</th><th>Tình trạng</th><th>Thao tác</th></tr>
-                        </thead>
+                        <thead class="table-secondary"><tr><th>Tên vật tư</th><th>Tồn kho</th><th>Cảnh báo</th><th>Tình trạng</th><th>Thao tác</th></tr></thead>
                         <tbody id="vattuTableBody"></tbody>
                     </table>
                 </div>
@@ -150,359 +104,175 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modalTitlePT">Thêm phương tiện mới</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editIndexPT" value="-1">
-                    <div class="mb-2"><label class="fw-bold">Loại PT</label><input type="text" id="ptLoai" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Mã ký hiệu</label><input type="text" id="ptKyHieu" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Tác dụng</label><input type="text" id="ptTacDung" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Tiểu đội</label><input type="text" id="ptTieuDoi" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Người phụ trách</label><input type="text" id="ptNguoi" class="form-control"></div>
-                    <div class="mb-2">
-                        <label class="fw-bold">Tình trạng</label>
-                        <select id="ptTinhTrang" class="form-select">
-                            <option value="Sẵn sàng">Sẵn sàng</option><option value="Tốt">Tốt</option>
-                            <option value="Cần sửa">Cần sửa</option><option value="Cần bảo dưỡng">Cần bảo dưỡng</option>
-                            <option value="Hỏng">Hỏng</option>
-                        </select>
-                    </div>
-                    <div class="mb-2"><label class="fw-bold">Ngày kiểm định</label><input type="date" id="ptNgay" class="form-control"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-success" onclick="savePT()">Lưu dữ liệu</button>
-                </div>
-            </div>
+    <div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-success text-white"><h5 class="modal-title">Thông tin phương tiện</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <input type="hidden" id="editIndexPT" value="-1">
+            <div class="mb-2"><label>Loại PT</label><input type="text" id="ptLoai" class="form-control"></div>
+            <div class="mb-2"><label>Mã ký hiệu</label><input type="text" id="ptKyHieu" class="form-control"></div>
+            <div class="mb-2"><label>Tiểu đội</label><input type="text" id="ptTieuDoi" class="form-control"></div>
+            <div class="mb-2"><label>Người phụ trách</label><input type="text" id="ptNguoi" class="form-control"></div>
+            <div class="mb-2"><label>Tình trạng</label><select id="ptTinhTrang" class="form-select"><option value="Sẵn sàng">Sẵn sàng</option><option value="Cần sửa">Cần sửa</option><option value="Hỏng">Hỏng</option></select></div>
+            <div class="mb-2"><label>Ngày KĐ</label><input type="date" id="ptNgay" class="form-control"></div>
         </div>
-    </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-success" onclick="savePT()">Lưu</button></div>
+    </div></div></div>
 
-    <div class="modal fade" id="logModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Thêm Nhật ký Bảo dưỡng / Xuất xe</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-2"><label class="fw-bold">Ngày thực hiện</label><input type="date" id="logNgay" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Mã phương tiện</label><input type="text" id="logKyHieu" class="form-control" placeholder="Nhập mã xe/máy bơm..."></div>
-                    <div class="mb-2"><label class="fw-bold">Nội dung công việc</label><input type="text" id="logNoiDung" class="form-control" placeholder="VD: Thay dầu động cơ, Xuất xe chữa cháy..."></div>
-                    <div class="mb-2"><label class="fw-bold">Người thực hiện</label><input type="text" id="logNguoi" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Ghi chú</label><input type="text" id="logGhiChu" class="form-control"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="saveLog()">Lưu nhật ký</button>
-                </div>
-            </div>
+    <div class="modal fade" id="logModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-primary text-white"><h5 class="modal-title">Thêm Nhật ký</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="mb-2"><label>Ngày</label><input type="date" id="logNgay" class="form-control"></div>
+            <div class="mb-2"><label>Mã PT</label><input type="text" id="logKyHieu" class="form-control"></div>
+            <div class="mb-2"><label>Nội dung</label><input type="text" id="logNoiDung" class="form-control"></div>
+            <div class="mb-2"><label>Người làm</label><input type="text" id="logNguoi" class="form-control"></div>
         </div>
-    </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-primary" onclick="saveLog()">Lưu</button></div>
+    </div></div></div>
 
-    <div class="modal fade" id="vatTuModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-secondary text-white">
-                    <h5 class="modal-title" id="modalTitleVT">Cập nhật Vật tư</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editIndexVT" value="-1">
-                    <div class="mb-2"><label class="fw-bold">Tên vật tư</label><input type="text" id="vtTen" class="form-control" placeholder="VD: Foam chữa cháy, Xăng A95..."></div>
-                    <div class="mb-2"><label class="fw-bold">Đơn vị tính</label><input type="text" id="vtDonVi" class="form-control" placeholder="Lít, Can, Cái..."></div>
-                    <div class="mb-2"><label class="fw-bold">Số lượng tồn kho</label><input type="number" id="vtTon" class="form-control"></div>
-                    <div class="mb-2"><label class="fw-bold">Định mức cảnh báo (Sắp hết)</label><input type="number" id="vtCanhBao" class="form-control" placeholder="Báo đỏ khi số lượng thấp hơn mức này"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-secondary" style="background:#6c757d;" onclick="saveVT()">Lưu vật tư</button>
-                </div>
-            </div>
+    <div class="modal fade" id="vatTuModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-secondary text-white"><h5 class="modal-title">Cập nhật Vật tư</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <input type="hidden" id="editIndexVT" value="-1">
+            <div class="mb-2"><label>Tên vật tư</label><input type="text" id="vtTen" class="form-control"></div>
+            <div class="mb-2"><label>Tồn kho</label><input type="number" id="vtTon" class="form-control"></div>
+            <div class="mb-2"><label>Cảnh báo khi dưới</label><input type="number" id="vtCanhBao" class="form-control"></div>
         </div>
-    </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-secondary" style="background:#6c757d;color:white" onclick="saveVT()">Lưu</button></div>
+    </div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // === LINK GOOGLE APPS SCRIPT CỦA BẠN ===
-        const API_URL = "https://script.google.com/macros/s/AKfycbymKnR3Fx3Vy6WwjnOVO0r0V_-7iV8kFvS2KkSVZwU6oTfqJvIEcz_9DJiL-kTEJXL0/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwKxsoaEXj1OPOXQ5P7jEv_C0R-OG0wEUTVsc3r9IndLuT1Htg2IFv0al_EBqzxgaVc/exec";
 
-        let phuongTienList = [];
-        let nhatKyList = [];
-        let vatTuList = [];
-        let currentFilter = 'all';
+        let phuongTienList = [], nhatKyList = [], vatTuList = [], currentFilter = 'all';
 
-        // Giao diện Loading
-        function showLoading(show, text = "Đang đồng bộ dữ liệu...") {
+        function showLoading(show, text = "Đang đồng bộ...") {
             document.getElementById("loadingText").innerText = text;
             document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
         }
 
-        // === GIAO TIẾP VỚI GOOGLE SHEETS ===
-        
-        // TẢI DỮ LIỆU TỪ MẠNG
         async function fetchData() {
-            showLoading(true, "Đang tải dữ liệu từ máy chủ...");
+            showLoading(true, "Đang tải dữ liệu...");
             try {
                 let response = await fetch(API_URL + "?action=getData");
                 let data = await response.json();
-                
                 phuongTienList = data.phuongTien || [];
                 nhatKyList = data.nhatKy || [];
                 vatTuList = data.vatTu || [];
-                
                 renderAll();
-            } catch (error) {
-                alert("Lỗi tải dữ liệu. Vui lòng kiểm tra mạng!");
-                console.error(error);
-            }
+            } catch (e) { alert("Lỗi tải dữ liệu. Hãy kiểm tra Google Sheets!"); }
             showLoading(false);
         }
 
-    // LƯU DỮ LIỆU LÊN MẠNG (Đã sửa lỗi CORS)
         async function saveToServer(sheetName, dataArray) {
-            showLoading(true, `Đang lưu lên bảng ${sheetName}...`);
+            showLoading(true, "Đang lưu...");
             try {
                 await fetch(API_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Bỏ qua cảnh báo chặn chuyển hướng của Google
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'saveAll',
-                        sheetName: sheetName,
-                        data: dataArray
-                    })
+                    body: JSON.stringify({ action: 'saveAll', sheetName: sheetName, data: dataArray })
                 });
-                // Với no-cors, trình duyệt không đọc được phản hồi nhưng dữ liệu vẫn lên tới nơi.
                 renderAll();
-            } catch (error) {
-                alert("Đã xảy ra lỗi mạng. Vui lòng kiểm tra lại kết nối!");
-                console.error(error);
-            }
+            } catch (e) { alert("Lỗi lưu dữ liệu!"); }
             showLoading(false);
         }
-        // ================= XỬ LÝ GIAO DIỆN =================
+
+        function getStatusClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s.includes('sẵn sàng') || s.includes('đầy đủ')) return 'status-tot';
+            if (s.includes('cần') || s.includes('sắp hết')) return 'status-can';
+            return 'status-hong';
+        }
+
         function renderAll() {
-            updateDashboard();
+            document.getElementById('total').textContent = phuongTienList.length;
+            document.getElementById('ready').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-tot').length;
+            document.getElementById('canSua').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-can').length;
+            document.getElementById('hong').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-hong').length;
+            
             renderFilteredTable();
             renderFullTable();
             renderNhatKy();
             renderVatTu();
         }
 
-        function getStatusClass(status) {
-            const s = (status || '').toLowerCase();
-            if (s.includes('sẵn sàng') || s.includes('tốt') || s.includes('đủ')) return 'status-tot';
-            if (s.includes('cần') || s.includes('sửa') || s.includes('sắp hết')) return 'status-can';
-            if (s.includes('hỏng') || s.includes('hết')) return 'status-hong';
-            return '';
-        }
-
-        // TAB DASHBOARD
-        function updateDashboard() {
-            document.getElementById('total').textContent = phuongTienList.length;
-            document.getElementById('ready').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-tot').length;
-            document.getElementById('canSua').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-can').length;
-            document.getElementById('hong').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-hong').length;
-        }
-
         function filterByStatus(filter, element) {
             currentFilter = filter;
             document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            element.classList.add('active');
+            if(element) element.classList.add('active');
             renderFilteredTable();
         }
 
         function renderFilteredTable() {
-            const tbody = document.getElementById('dashboardTableBody');
-            tbody.innerHTML = '';
-            let filtered = phuongTienList;
-            if (currentFilter === 'san-sang') filtered = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-tot');
-            else if (currentFilter === 'can-bd') filtered = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-can');
-            else if (currentFilter === 'hong') filtered = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-hong');
-
-            filtered.forEach(item => {
-                const tr = document.createElement('tr');
+            const tbody = document.getElementById('dashboardTableBody'); tbody.innerHTML = '';
+            let f = phuongTienList.filter(i => currentFilter === 'all' || getStatusClass(i.TinhTrang || i.tinhtrang) === (currentFilter === 'san-sang' ? 'status-tot' : currentFilter === 'can-bd' ? 'status-can' : 'status-hong'));
+            f.forEach(item => {
                 let tt = item.TinhTrang || item.tinhtrang || '—';
-                tr.innerHTML = `<td><strong>${item.Loai || item.loai || ''}</strong></td><td>${item.KyHieu || item.kyhieu || ''}</td>
-                                <td class="${getStatusClass(tt)}">${tt}</td><td>${item.NgayKiemDinh || item.ngaykiemtra || '—'}</td>`;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `<tr><td><strong>${item.Loai || item.loai || ''}</strong></td><td>${item.KyHieu || item.kyhieu || ''}</td><td class="${getStatusClass(tt)}">${tt}</td><td>${item.NgayKiemDinh || item.ngaykiemtra || '—'}</td></tr>`;
             });
         }
 
-        // TAB DANH SÁCH PHƯƠNG TIỆN
         function renderFullTable(data = phuongTienList) {
-            const tbody = document.getElementById('fullTableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('fullTableBody'); tbody.innerHTML = '';
             data.forEach((item, index) => {
-                let realIndex = phuongTienList.indexOf(item);
                 let tt = item.TinhTrang || item.tinhtrang || '';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${item.Loai || item.loai || ''}</strong></td>
-                    <td>${item.KyHieu || item.kyhieu || ''}</td>
-                    <td>${(item.TacDung || item.tacdung || '').substring(0,30)}</td>
-                    <td>${item.TieuDoi || item.tieudoi || ''}</td>
-                    <td>${item.NguoiPhuTrach || item.nguoichutrachnhiem || ''}</td>
-                    <td>${item.NgayKiemDinh || item.ngaykiemtra || ''}</td>
-                    <td class="${getStatusClass(tt)}">${tt}</td>
-                    <td><button class="btn btn-sm btn-outline-primary" onclick="editPT(${realIndex})"><i class="fas fa-edit"></i></button></td>
-                `;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `<tr><td><strong>${item.Loai || item.loai || ''}</strong></td><td>${item.KyHieu || item.kyhieu || ''}</td><td>${item.TieuDoi || item.tieudoi || ''}</td><td>${item.NguoiPhuTrach || item.nguoichutrachnhiem || ''}</td><td class="${getStatusClass(tt)}">${tt}</td><td><button class="btn btn-sm btn-outline-primary" onclick="editPT(${phuongTienList.indexOf(item)})"><i class="fas fa-edit"></i></button></td></tr>`;
             });
         }
 
         function filterFullTable() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            const filtered = phuongTienList.filter(i => Object.values(i).join(' ').toLowerCase().includes(term));
-            renderFullTable(filtered);
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            renderFullTable(phuongTienList.filter(i => Object.values(i).join(' ').toLowerCase().includes(term)));
         }
 
-        // TAB NHẬT KÝ
         function renderNhatKy() {
-            const term = document.getElementById('searchLog').value.toLowerCase().trim();
-            const filtered = nhatKyList.filter(i => Object.values(i).join(' ').toLowerCase().includes(term));
-            const tbody = document.getElementById('logTableBody');
-            tbody.innerHTML = '';
-            filtered.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.NgayThucHien || ''}</td><td><strong>${item.KyHieu || ''}</strong></td>
-                                <td>${item.NoiDung || ''}</td><td>${item.NguoiThucHien || ''}</td><td>${item.GhiChu || ''}</td>`;
-                tbody.appendChild(tr);
+            const tbody = document.getElementById('logTableBody'); tbody.innerHTML = '';
+            nhatKyList.forEach(item => {
+                tbody.innerHTML += `<tr><td>${item.NgayThucHien || ''}</td><td><strong>${item.KyHieu || ''}</strong></td><td>${item.NoiDung || ''}</td><td>${item.NguoiThucHien || ''}</td></tr>`;
             });
         }
 
-        // TAB VẬT TƯ
         function renderVatTu() {
-            const term = document.getElementById('searchVatTu').value.toLowerCase().trim();
-            const filtered = vatTuList.filter(i => Object.values(i).join(' ').toLowerCase().includes(term));
-            const tbody = document.getElementById('vattuTableBody');
-            tbody.innerHTML = '';
-            filtered.forEach(item => {
-                let realIndex = vatTuList.indexOf(item);
-                let ton = parseInt(item.SoLuongTon || 0);
-                let muc = parseInt(item.DinhMucCanhBao || 0);
-                
-                // Logic tính trạng thái tự động
-                let tinhTrang = ton > muc ? "Đầy đủ" : (ton > 0 ? "Sắp hết" : "Đã hết");
-                let colorClass = ton > muc ? "text-success" : "text-danger fw-bold";
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td><strong>${item.TenVatTu || ''}</strong></td><td>${item.DonViTinh || ''}</td>
-                                <td><h5 class="${colorClass}">${ton}</h5></td><td>${muc}</td>
-                                <td class="${colorClass}">${tinhTrang}</td>
-                                <td><button class="btn btn-sm btn-outline-secondary" onclick="editVT(${realIndex})"><i class="fas fa-edit"></i></button></td>`;
-                tbody.appendChild(tr);
+            const tbody = document.getElementById('vattuTableBody'); tbody.innerHTML = '';
+            vatTuList.forEach((item, index) => {
+                let ton = parseInt(item.SoLuongTon || 0), muc = parseInt(item.DinhMucCanhBao || 0);
+                let tt = ton > muc ? "Đầy đủ" : (ton > 0 ? "Sắp hết" : "Đã hết");
+                tbody.innerHTML += `<tr><td><strong>${item.TenVatTu || ''}</strong></td><td>${ton}</td><td>${muc}</td><td class="${getStatusClass(tt)}">${tt}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="editVT(${index})"><i class="fas fa-edit"></i></button></td></tr>`;
             });
         }
 
-        // ================= CÁC HÀM XỬ LÝ LƯU/SỬA DỮ LIỆU =================
-
-        // 1. PHƯƠNG TIỆN
-        function showAddModal() {
-            document.getElementById('editIndexPT').value = -1;
-            document.getElementById('modalTitlePT').innerText = "Thêm phương tiện mới";
-            document.getElementById('ptLoai').value = ''; document.getElementById('ptKyHieu').value = '';
-            document.getElementById('ptTacDung').value = ''; document.getElementById('ptTieuDoi').value = '';
-            document.getElementById('ptNguoi').value = ''; document.getElementById('ptTinhTrang').value = 'Sẵn sàng';
-            document.getElementById('ptNgay').value = '';
+        // Functions for Modal
+        function showAddModal() { document.getElementById('editIndexPT').value = -1; ['ptLoai','ptKyHieu','ptTieuDoi','ptNguoi','ptNgay'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('addModal')).show(); }
+        function editPT(idx) { 
+            const i = phuongTienList[idx]; document.getElementById('editIndexPT').value = idx;
+            document.getElementById('ptLoai').value = i.Loai || i.loai || ''; document.getElementById('ptKyHieu').value = i.KyHieu || i.kyhieu || '';
+            document.getElementById('ptTieuDoi').value = i.TieuDoi || i.tieudoi || ''; document.getElementById('ptNguoi').value = i.NguoiPhuTrach || i.nguoichutrachnhiem || '';
+            document.getElementById('ptTinhTrang').value = i.TinhTrang || i.tinhtrang || 'Sẵn sàng'; document.getElementById('ptNgay').value = i.NgayKiemDinh || i.ngaykiemtra || '';
             new bootstrap.Modal(document.getElementById('addModal')).show();
         }
-
-        function editPT(index) {
-            const item = phuongTienList[index];
-            document.getElementById('editIndexPT').value = index;
-            document.getElementById('modalTitlePT').innerText = "Sửa thông tin";
-            document.getElementById('ptLoai').value = item.Loai || item.loai || '';
-            document.getElementById('ptKyHieu').value = item.KyHieu || item.kyhieu || '';
-            document.getElementById('ptTacDung').value = item.TacDung || item.tacdung || '';
-            document.getElementById('ptTieuDoi').value = item.TieuDoi || item.tieudoi || '';
-            document.getElementById('ptNguoi').value = item.NguoiPhuTrach || item.nguoichutrachnhiem || '';
-            
-            let ttSelect = document.getElementById('ptTinhTrang');
-            let ttVal = item.TinhTrang || item.tinhtrang || 'Sẵn sàng';
-            if (!Array.from(ttSelect.options).some(opt => opt.value === ttVal)) ttSelect.add(new Option(ttVal, ttVal));
-            ttSelect.value = ttVal;
-            
-            document.getElementById('ptNgay').value = item.NgayKiemDinh || item.ngaykiemtra || '';
-            new bootstrap.Modal(document.getElementById('addModal')).show();
-        }
-
         function savePT() {
-            const index = document.getElementById('editIndexPT').value;
-            const newItem = {
-                Loai: document.getElementById('ptLoai').value, KyHieu: document.getElementById('ptKyHieu').value,
-                TacDung: document.getElementById('ptTacDung').value, TieuDoi: document.getElementById('ptTieuDoi').value,
-                NguoiPhuTrach: document.getElementById('ptNguoi').value, TinhTrang: document.getElementById('ptTinhTrang').value,
-                NgayKiemDinh: document.getElementById('ptNgay').value
-            };
-            if(index == -1) phuongTienList.push(newItem); else phuongTienList[index] = newItem;
-            
-            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-            saveToServer('PhuongTien', phuongTienList);
+            const idx = document.getElementById('editIndexPT').value;
+            const item = { Loai: document.getElementById('ptLoai').value, KyHieu: document.getElementById('ptKyHieu').value, TieuDoi: document.getElementById('ptTieuDoi').value, NguoiPhuTrach: document.getElementById('ptNguoi').value, TinhTrang: document.getElementById('ptTinhTrang').value, NgayKiemDinh: document.getElementById('ptNgay').value };
+            if(idx == -1) phuongTienList.push(item); else phuongTienList[idx] = item;
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide(); saveToServer('PhuongTien', phuongTienList);
         }
 
-        // 2. NHẬT KÝ
-        function showLogModal() {
-            // Lấy ngày hôm nay làm mặc định
-            document.getElementById('logNgay').valueAsDate = new Date();
-            document.getElementById('logKyHieu').value = ''; document.getElementById('logNoiDung').value = '';
-            document.getElementById('logNguoi').value = ''; document.getElementById('logGhiChu').value = '';
-            new bootstrap.Modal(document.getElementById('logModal')).show();
-        }
-
+        function showLogModal() { document.getElementById('logNgay').valueAsDate = new Date(); ['logKyHieu','logNoiDung','logNguoi'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('logModal')).show(); }
         function saveLog() {
-            const newItem = {
-                NgayThucHien: document.getElementById('logNgay').value, KyHieu: document.getElementById('logKyHieu').value,
-                NoiDung: document.getElementById('logNoiDung').value, NguoiThucHien: document.getElementById('logNguoi').value,
-                GhiChu: document.getElementById('logGhiChu').value
-            };
-            nhatKyList.unshift(newItem); // Thêm lên đầu danh sách
-            bootstrap.Modal.getInstance(document.getElementById('logModal')).hide();
-            saveToServer('NhatKy', nhatKyList);
+            const item = { NgayThucHien: document.getElementById('logNgay').value, KyHieu: document.getElementById('logKyHieu').value, NoiDung: document.getElementById('logNoiDung').value, NguoiThucHien: document.getElementById('logNguoi').value };
+            nhatKyList.unshift(item); bootstrap.Modal.getInstance(document.getElementById('logModal')).hide(); saveToServer('NhatKy', nhatKyList);
         }
 
-        // 3. VẬT TƯ
-        function showVatTuModal() {
-            document.getElementById('editIndexVT').value = -1;
-            document.getElementById('modalTitleVT').innerText = "Thêm Vật tư mới";
-            document.getElementById('vtTen').value = ''; document.getElementById('vtDonVi').value = '';
-            document.getElementById('vtTon').value = ''; document.getElementById('vtCanhBao').value = '';
-            new bootstrap.Modal(document.getElementById('vatTuModal')).show();
-        }
-
-        function editVT(index) {
-            const item = vatTuList[index];
-            document.getElementById('editIndexVT').value = index;
-            document.getElementById('modalTitleVT').innerText = "Cập nhật số lượng";
-            document.getElementById('vtTen').value = item.TenVatTu || '';
-            document.getElementById('vtDonVi').value = item.DonViTinh || '';
-            document.getElementById('vtTon').value = item.SoLuongTon || '';
-            document.getElementById('vtCanhBao').value = item.DinhMucCanhBao || '';
-            new bootstrap.Modal(document.getElementById('vatTuModal')).show();
-        }
-
+        function showVatTuModal() { document.getElementById('editIndexVT').value = -1; ['vtTen','vtTon','vtCanhBao'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('vatTuModal')).show(); }
+        function editVT(idx) { const i = vatTuList[idx]; document.getElementById('editIndexVT').value = idx; document.getElementById('vtTen').value = i.TenVatTu || ''; document.getElementById('vtTon').value = i.SoLuongTon || 0; document.getElementById('vtCanhBao').value = i.DinhMucCanhBao || 0; new bootstrap.Modal(document.getElementById('vatTuModal')).show(); }
         function saveVT() {
-            const index = document.getElementById('editIndexVT').value;
-            let ton = parseInt(document.getElementById('vtTon').value || 0);
-            let muc = parseInt(document.getElementById('vtCanhBao').value || 0);
-            let tt = ton > muc ? "Đầy đủ" : (ton > 0 ? "Sắp hết" : "Đã hết");
-
-            const newItem = {
-                TenVatTu: document.getElementById('vtTen').value, DonViTinh: document.getElementById('vtDonVi').value,
-                SoLuongTon: ton, DinhMucCanhBao: muc, TinhTrang: tt
-            };
-            if(index == -1) vatTuList.push(newItem); else vatTuList[index] = newItem;
-            
-            bootstrap.Modal.getInstance(document.getElementById('vatTuModal')).hide();
-            saveToServer('VatTu', vatTuList);
+            const idx = document.getElementById('editIndexVT').value;
+            const item = { TenVatTu: document.getElementById('vtTen').value, SoLuongTon: document.getElementById('vtTon').value, DinhMucCanhBao: document.getElementById('vtCanhBao').value };
+            if(idx == -1) vatTuList.push(item); else vatTuList[idx] = item;
+            bootstrap.Modal.getInstance(document.getElementById('vatTuModal')).hide(); saveToServer('VatTu', vatTuList);
         }
 
-        // KHI MỞ TRANG WEB: TỰ ĐỘNG GỌI HÀM LẤY DỮ LIỆU
         window.onload = fetchData;
     </script>
 </body>
