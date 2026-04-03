@@ -3,98 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý PCCC KV6 - V5.0 CHUẨN</title>
+    <title>QUẢN LÝ PCCC KV6 - V6.0 FINAL</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
-        :root { --pccc-red: #dc3545; --pccc-blue: #0d6efd; }
-        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        :root { --pccc-red: #dc3545; --pccc-blue: #0d6efd; --pccc-gold: #ffc107; }
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; }
+        
+        /* MÀN HÌNH ĐĂNG NHẬP */
         #loginScreen { position: fixed; inset: 0; background: #1a1d20; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
+        .login-box { background: white; padding: 35px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-top: 8px solid var(--pccc-red); }
+        
+        /* GIAO DIỆN CHÍNH */
         #mainApp { display: none; }
-        .header { background: linear-gradient(135deg, var(--pccc-red), var(--pccc-blue)); color: white; padding: 20px 10px; text-align: center; border-bottom: 5px solid #ffc107; }
-        .nav-tabs .nav-link { color: #495057; font-weight: bold; }
-        .nav-tabs .nav-link.active { color: var(--pccc-red); border-bottom: 3px solid var(--pccc-red); }
-        .stat-card { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; height: 100%; transition: 0.2s; }
-        .stat-card.active { border-color: var(--pccc-red); background: #fff5f5; }
-        .table-responsive { background: white; border-radius: 15px; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .header { background: linear-gradient(135deg, var(--pccc-red), var(--pccc-blue)); color: white; padding: 25px 15px; text-align: center; border-bottom: 5px solid var(--pccc-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        /* MENU TABS */
+        .nav-tabs { background: white; border: none; padding: 5px 10px 0; border-radius: 15px 15px 0 0; }
+        .nav-link { border: none !important; font-weight: bold; color: #6c757d; padding: 12px 20px; transition: 0.3s; }
+        .nav-link.active { color: var(--pccc-red) !important; border-bottom: 4px solid var(--pccc-red) !important; background: transparent !important; }
+        
+        /* THỐNG KÊ */
+        .stat-card { background: white; border-radius: 20px; padding: 15px 5px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; border: 3px solid transparent; transition: 0.3s; height: 100%; }
+        .stat-card.active { border-color: var(--pccc-red); background: #fff5f5; transform: translateY(-5px); }
+        .stat-card h6 { font-size: 0.75rem; letter-spacing: 1px; color: #888; margin-bottom: 5px; }
+        .stat-card h3 { font-weight: 800; margin-bottom: 0; }
+
+        /* BẢNG DỮ LIỆU */
+        .table-box { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .badge-pccc { padding: 6px 12px; border-radius: 30px; font-weight: bold; font-size: 0.75rem; }
+        
+        /* HIỆU ỨNG TẢI */
+        #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner-pccc { width: 3rem; height: 3rem; border: 5px solid #f3f3f3; border-top: 5px solid var(--pccc-red); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
     <div id="loginScreen">
         <div class="login-box">
-            <i class="fas fa-shield-alt fa-4x text-danger mb-3"></i>
-            <h4 class="fw-bold">HỆ THỐNG NỘI BỘ KV6</h4>
-            <input type="password" id="passInput" class="form-control form-control-lg my-4 text-center" placeholder="Mật khẩu (114)">
-            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="handleLogin()">VÀO HỆ THỐNG</button>
+            <div class="mb-3"><i class="fas fa-user-shield fa-4x text-danger"></i></div>
+            <h3 class="fw-bold mb-1">XÁC THỰC</h3>
+            <p class="text-muted small mb-4">Hệ thống nội bộ Đội KV6 - Quảng Ninh</p>
+            <input type="password" id="passCode" class="form-control form-control-lg mb-4 text-center shadow-sm" placeholder="Mật khẩu (114)" autofocus>
+            <button class="btn btn-danger btn-lg w-100 fw-bold shadow" onclick="validateLogin()">ĐĂNG NHẬP NGAY</button>
         </div>
     </div>
-    <div id="loading"><div class="spinner-border text-danger mb-2"></div><b>Đang đồng bộ dữ liệu...</b></div>
+
+    <div id="loading">
+        <div class="spinner-pccc mb-3"></div>
+        <h5 class="fw-bold text-danger">ĐANG KẾT NỐI VỆ TINH...</h5>
+        <p class="text-muted small">Vui lòng đợi trong giây lát</p>
+    </div>
+
     <div id="mainApp">
         <div class="header">
-            <h3 class="fw-bold mb-0">HỆ THỐNG QUẢN LÝ</h3>
-            <div class="mt-2"><button class="btn btn-sm btn-light fw-bold" onclick="fetchData()">LÀM MỚI</button> <button class="btn btn-sm btn-outline-light" onclick="localStorage.clear();location.reload()">THOÁT</button></div>
+            <h2 class="fw-bold mb-1"><i class="fas fa-fire-extinguisher"></i> QUẢN LÝ KV6</h2>
+            <p class="small opacity-75 mb-3">Dữ liệu trực tuyến từ Google Sheets</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-light fw-bold px-3 shadow-sm" onclick="syncData()"><i class="fas fa-sync-alt"></i> LÀM MỚI</button>
+                <button class="btn btn-sm btn-outline-light px-3" onclick="logoutApp()">THOÁT</button>
+            </div>
         </div>
+
         <div class="container mt-3">
-            <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto text-nowrap">
-                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#t1">Tổng quan</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t2">Danh sách</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t3">Nhật ký</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t4">Vật tư</a></li>
+            <ul class="nav nav-tabs mb-4 flex-nowrap overflow-auto no-scrollbar">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab1"><i class="fas fa-th-large"></i> Tổng quan</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab2"><i class="fas fa-list"></i> Danh sách</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab3"><i class="fas fa-tools"></i> Bảo dưỡng</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab4"><i class="fas fa-box-open"></i> Vật tư</a></li>
             </ul>
+
             <div class="tab-content">
-                <div class="tab-pane fade show active" id="t1">
+                <div class="tab-pane fade show active" id="tab1">
                     <div class="row g-2 mb-4">
-                        <div class="col-3"><div class="stat-card active" id="c-all" onclick="filterData('all')"><h6>TỔNG</h6><h4 id="v-all">0</h4></div></div>
-                        <div class="col-3"><div class="stat-card" id="c-ok" onclick="filterData('Sẵn sàng')"><h6>TỐT</h6><h4 id="v-ok" class="text-success">0</h4></div></div>
-                        <div class="col-3"><div class="stat-card" id="c-fix" onclick="filterData('bảo dưỡng')"><h6>SỬA</h6><h4 id="v-fix" class="text-warning">0</h4></div></div>
-                        <div class="col-3"><div class="stat-card" id="c-bad" onclick="filterData('Hỏng')"><h6>HỎNG</h6><h4 id="v-bad" class="text-danger">0</h4></div></div>
+                        <div class="col-3"><div class="stat-card active" id="card-all" onclick="applyFilter('all')"><h6>TỔNG</h6><h3 id="v-all" class="text-primary">0</h3></div></div>
+                        <div class="col-3"><div class="stat-card" id="card-ok" onclick="applyFilter('Sẵn sàng')"><h6>TỐT</h6><h3 id="v-ok" class="text-success">0</h3></div></div>
+                        <div class="col-3"><div class="stat-card" id="card-fix" onclick="applyFilter('bảo dưỡng')"><h6>SỬA</h6><h3 id="v-fix" class="text-warning">0</h3></div></div>
+                        <div class="col-3"><div class="stat-card" id="card-bad" onclick="applyFilter('Hỏng')"><h6>HỎNG</h6><h3 id="v-bad" class="text-danger">0</h3></div></div>
                     </div>
-                    <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Loại</th><th>Mã</th><th>Trạng thái</th></tr></thead><tbody id="dbTable"></tbody></table></div>
+                    <div class="table-box">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light"><tr><th>Loại</th><th>Mã xe</th><th>Trạng thái</th></tr></thead>
+                            <tbody id="dashTable"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="tab-pane fade" id="t2"><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-dark"><tr><th>Loại</th><th>Mã</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead><tbody id="fullTable"></tbody></table></div></div>
-                <div class="tab-pane fade" id="t3"><div class="table-responsive"><table class="table table-sm"><thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th></tr></thead><tbody id="nkTable"></tbody></table></div></div>
-                <div class="tab-pane fade" id="t4"><div class="table-responsive"><table class="table table-sm"><thead class="table-secondary"><tr><th>Vật tư</th><th>Tồn</th><th>Trạng thái</th></tr></thead><tbody id="vtTable"></tbody></table></div></div>
+
+                <div class="tab-pane fade" id="tab2">
+                    <div class="table-box">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark"><tr><th>Phương tiện</th><th>Mã</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead>
+                            <tbody id="fullTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab3">
+                    <div class="table-box">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung thực hiện</th></tr></thead>
+                            <tbody id="logTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab4">
+                    <div class="table-box">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-secondary"><tr><th>Tên vật tư</th><th>Tồn kho</th><th>Tình trạng</th></tr></thead>
+                            <tbody id="supplyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
-        let mData = { phuongTien: [], nhatKy: [], vatTu: [] };
-        window.onload = () => { if(localStorage.getItem('kv6_a') === 't') show(); };
-        function handleLogin() { if(document.getElementById('passInput').value === "114") { localStorage.setItem('kv6_a', 't'); show(); } else alert("Sai!"); }
-        function show() { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; fetchData(); }
-        async function fetchData() {
+        const API_URL = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
+        const PASS_APP = "114";
+        let db = { phuongTien: [], nhatKy: [], vatTu: [] };
+
+        // 1. KIỂM TRA ĐĂNG NHẬP
+        window.onload = () => { if(localStorage.getItem('kv6_v6_auth') === 'done') unlock(); };
+        
+        function validateLogin() {
+            if(document.getElementById('passCode').value === PASS_APP) {
+                localStorage.setItem('kv6_v6_auth', 'done');
+                unlock();
+            } else { alert("Mật khẩu không chính xác!"); }
+        }
+
+        function unlock() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            syncData();
+        }
+
+        function logoutApp() { localStorage.clear(); location.reload(); }
+
+        // 2. ĐỒNG BỘ DỮ LIỆU
+        async function syncData() {
             document.getElementById('loading').style.display = 'flex';
-            try { const r = await fetch(API + "?action=getData"); mData = await r.json(); render(); } catch (e) { alert("Lỗi kết nối! Hãy thử tải lại trang."); }
+            try {
+                const r = await fetch(API_URL + "?action=getData");
+                db = await r.json();
+                renderAll();
+            } catch (e) { alert("Lỗi kết nối vệ tinh! Hãy nhấn Làm mới."); console.error(e); }
             document.getElementById('loading').style.display = 'none';
         }
-        function gV(o, f) { let s = f.toLowerCase().replace(/\s/g, ''); for (let k in o) { if(k.toLowerCase().replace(/\s/g, '').includes(s)) return o[k]; } return ""; }
-        function render() {
-            const pt = mData.phuongTien || [];
-            document.getElementById('v-all').innerText = pt.length;
-            document.getElementById('v-ok').innerText = pt.filter(i => String(gV(i, 'TinhTrang')).includes('Sẵn sàng')).length;
-            document.getElementById('v-fix').innerText = pt.filter(i => String(gV(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
-            document.getElementById('v-bad').innerText = pt.filter(i => String(gV(i, 'TinhTrang')).includes('Hỏng')).length;
-            rT('dbTable', pt); rT('fullTable', pt, true);
-            document.getElementById('nkTable').innerHTML = (mData.nhatKy || []).map(i => `<tr><td>${gV(i,'Ngay')}</td><td><b>${gV(i,'KyHieu')}</b></td><td>${gV(i,'NoiDung')}</td></tr>`).join('');
-            document.getElementById('vtTable').innerHTML = (mData.vatTu || []).map(i => { let t = parseInt(gV(i,'SoLuong')) || 0; return `<tr><td><b>${gV(i,'Ten')}</b></td><td>${t}</td><td><span class="badge bg-${t > 0 ? 'success' : 'danger'}">${t > 0 ? 'Còn' : 'Hết'}</span></td></tr>`; }).join('');
+
+        // 3. BỘ DÒ CỘT THÔNG MINH (Dò cả tiếng Việt có dấu/không dấu)
+        function find(obj, field) {
+            const f = field.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+            for (let k in obj) {
+                let keyNorm = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                if(keyNorm.includes(f)) return obj[k];
+            }
+            return "";
         }
-        function rT(id, d, f = false) {
-            document.getElementById(id).innerHTML = d.map(i => {
-                let s = String(gV(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
-                if(!f) return `<tr><td><b>${gV(i,'Loai')}</b></td><td>${gV(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
-                return `<tr><td><b>${gV(i,'Loai')}</b><br><small>${gV(i,'TieuDoi')}</small></td><td>${gV(i,'KyHieu')}</td><td>${gV(i,'NguoiPhuTrach')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
+
+        // 4. HIỂN THỊ DỮ LIỆU
+        function renderAll() {
+            const pt = db.phuongTien || [];
+            // Thống kê số lượng
+            document.getElementById('v-all').innerText = pt.length;
+            document.getElementById('v-ok').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Sẵn sàng')).length;
+            document.getElementById('v-fix').innerText = pt.filter(i => String(find(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
+            document.getElementById('v-bad').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Hỏng')).length;
+
+            renderList('dashTable', pt);
+            renderList('fullTableBody', pt, true);
+            
+            // Nhật ký
+            document.getElementById('logTableBody').innerHTML = (db.nhatKy || []).map(i => `<tr><td>${find(i,'Ngay')}</td><td><b class="text-danger">${find(i,'KyHieu')}</b></td><td>${find(i,'NoiDung')}</td></tr>`).join('');
+            
+            // Vật tư
+            document.getElementById('supplyTableBody').innerHTML = (db.vatTu || []).map(i => {
+                let sl = parseInt(find(i,'SoLuong')) || 0;
+                return `<tr><td><b>${find(i,'Ten')}</b></td><td>${sl}</td><td><span class="badge bg-${sl > 0 ? 'success' : 'danger'}">${sl > 0 ? 'Còn hàng' : 'Hết hàng'}</span></td></tr>`;
             }).join('');
         }
-        function filterData(s) {
+
+        function renderList(id, data, isFull = false) {
+            document.getElementById(id).innerHTML = data.map(i => {
+                let st = String(find(i, 'TinhTrang'));
+                let c = st.includes('Hỏng') ? 'danger' : (st.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
+                if(!isFull) return `<tr><td><b>${find(i,'Loai')}</b></td><td>${find(i,'KyHieu')}</td><td><span class="badge-pccc bg-${c}">${st}</span></td></tr>`;
+                return `<tr><td><b>${find(i,'Loai')}</b><br><small class="text-muted">${find(i,'TieuDoi')}</small></td><td>${find(i,'KyHieu')}</td><td>${find(i,'NguoiPhuTrach')}</td><td><span class="badge-pccc bg-${c}">${st}</span></td></tr>`;
+            }).join('');
+        }
+
+        function applyFilter(st) {
             document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            if(s === 'all') { document.getElementById('c-all').classList.add('active'); rT('dbTable', mData.phuongTien); }
-            else { 
-                const id = s === 'Sẵn sàng' ? 'c-ok' : (s === 'bảo dưỡng' ? 'c-fix' : 'c-bad');
-                document.getElementById(id).classList.add('active');
-                rT('dbTable', mData.phuongTien.filter(i => String(gV(i, 'TinhTrang')).includes(s))); 
+            if(st === 'all') {
+                document.getElementById('card-all').classList.add('active');
+                renderList('dashTable', db.phuongTien);
+            } else {
+                const cid = st === 'Sẵn sàng' ? 'card-ok' : (st === 'bảo dưỡng' ? 'card-fix' : 'card-bad');
+                document.getElementById(cid).classList.add('active');
+                renderList('dashTable', db.phuongTien.filter(i => String(find(i, 'TinhTrang')).includes(st)));
             }
         }
     </script>
