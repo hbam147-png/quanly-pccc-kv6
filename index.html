@@ -3,120 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý PCCC - KV6</title>
+    <title>Quản lý PCCC KV6 - V4.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
-        .header { background: linear-gradient(135deg, #dc3545, #0d6efd); color: white; padding: 20px; text-align: center; border-radius: 0 0 20px 20px; }
+        :root { --pccc-red: #dc3545; --pccc-blue: #0d6efd; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* MÀN HÌNH KHÓA */
         #loginScreen { position: fixed; inset: 0; background: #1a1d20; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        
+        /* GIAO DIỆN CHÍNH */
         #mainApp { display: none; }
-        .stat-card { background: white; border-radius: 15px; padding: 10px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; }
-        .stat-card.active { border-color: #dc3545; background: #fff5f5; }
-        .item-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 5px solid #6c757d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .header { background: linear-gradient(135deg, var(--pccc-red), var(--pccc-blue)); color: white; padding: 20px; text-align: center; border-bottom: 5px solid #ffc107; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .stat-card { background: white; border-radius: 15px; padding: 12px 5px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; transition: 0.2s; height: 100%; }
+        .stat-card.active { border-color: var(--pccc-red); background: #fff5f5; transform: scale(1.03); }
+        .stat-card h6 { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #6c757d; }
+        
+        /* CARD PHƯƠNG TIỆN */
+        .item-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 6px solid #6c757d; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .status-success { border-left-color: #198754; }
+        .status-warning { border-left-color: #ffc107; }
+        .status-danger { border-left-color: #dc3545; }
+        
+        #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
+
     <div id="loginScreen">
         <div class="login-box">
-            <i class="fas fa-shield-alt fa-4x text-danger mb-3"></i>
-            <h4>ĐỘI PCCC KV6</h4>
-            <input type="password" id="pass" class="form-control form-control-lg my-3 text-center" placeholder="Mật khẩu (114)">
-            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="doLogin()">ĐĂNG NHẬP</button>
+            <i class="fas fa-user-shield fa-4x text-danger mb-3"></i>
+            <h4 class="fw-bold">XÁC THỰC NỘI BỘ</h4>
+            <p class="text-muted small">Đội Chữa cháy & CNCH Khu vực 6</p>
+            <input type="password" id="passInput" class="form-control form-control-lg my-4 text-center" placeholder="Nhập mật khẩu (114)">
+            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="handleLogin()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
-    <div id="loading"><div class="spinner-border text-danger mb-2"></div><b>Đang lấy dữ liệu...</b></div>
+    <div id="loading">
+        <div class="spinner-border text-danger mb-2" style="width: 3rem; height: 3rem;"></div>
+        <b id="statusText">Đang tải dữ liệu trực tuyến...</b>
+    </div>
 
     <div id="mainApp">
         <div class="header">
-            <h3 class="fw-bold mb-0">HỆ THỐNG QUẢN LÝ</h3>
-            <div class="mt-2">
-                <button class="btn btn-sm btn-light fw-bold" onclick="fetchData()"><i class="fas fa-sync"></i> LÀM MỚI</button>
-                <button class="btn btn-sm btn-outline-light" onclick="localStorage.clear();location.reload()">THOÁT</button>
+            <h3 class="fw-bold mb-0"><i class="fas fa-fire-extinguisher"></i> QUẢN LÝ KV6</h3>
+            <div class="mt-3 d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-light fw-bold px-3" onclick="fetchData()"><i class="fas fa-sync-alt"></i> LÀM MỚI</button>
+                <button class="btn btn-sm btn-outline-light px-3" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> THOÁT</button>
             </div>
         </div>
 
         <div class="container mt-3">
-            <div class="row g-2 mb-3">
-                <div class="col-3"><div class="stat-card active" onclick="filterData('all', this)"><h6>Tổng</h6><h4 id="c_all">0</h4></div></div>
-                <div class="col-3"><div class="stat-card" onclick="filterData('Sẵn sàng', this)"><h6>Tốt</h6><h4 id="c_ok" class="text-success">0</h4></div></div>
-                <div class="col-3"><div class="stat-card" onclick="filterData('bảo dưỡng', this)"><h6>Sửa</h6><h4 id="c_fix" class="text-warning">0</h4></div></div>
-                <div class="col-3"><div class="stat-card" onclick="filterData('Hỏng', this)"><h6>Hỏng</h6><h4 id="c_bad" class="text-danger">0</h4></div></div>
+            <div class="row g-2 mb-4">
+                <div class="col-3"><div class="stat-card active" onclick="filterBy('all', this)"><h6>TỔNG</h6><h4 id="c_all" class="text-primary mb-0">0</h4></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterBy('Sẵn sàng', this)"><h6>TỐT</h6><h4 id="c_ok" class="text-success mb-0">0</h4></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterBy('bảo dưỡng', this)"><h6>SỬA</h6><h4 id="c_fix" class="text-warning mb-0">0</h4></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterBy('Hỏng', this)"><h6>HỎNG</h6><h4 id="c_bad" class="text-danger mb-0">0</h4></div></div>
             </div>
-            <div id="listBody"></div>
+
+            <div id="listContainer">
+                </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbznvPl941KWRG_lHUAGH9HDEBWsE-t7y858sr4keFAM6jAGnPqXmHSUkf_nCJ1gejDN/exec";
-        let rawData = [];
+        // LINK API MỚI NHẤT CỦA THÀNH
+        const API_URL = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
+        const APP_PASS = "114";
+        let masterData = [];
 
-        window.onload = () => { if(localStorage.getItem('auth_kv6') === 'true') showApp(); };
-        function doLogin() {
-            if(document.getElementById('pass').value === "114") {
-                localStorage.setItem('auth_kv6', 'true');
-                showApp();
-            } else { alert("Sai mật khẩu!"); }
+        // KIỂM TRA ĐĂNG NHẬP KHI MỞ APP
+        window.onload = () => {
+            if (localStorage.getItem('kv6_authenticated') === 'true') {
+                showAppContent();
+            }
+        };
+
+        function handleLogin() {
+            if (document.getElementById('passInput').value === APP_PASS) {
+                localStorage.setItem('kv6_authenticated', 'true');
+                showAppContent();
+            } else {
+                alert("Mật khẩu không chính xác!");
+            }
         }
-        function showApp() {
+
+        function showAppContent() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             fetchData();
         }
 
+        function doLogout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // LẤY DỮ LIỆU TỪ GOOGLE SHEETS
         async function fetchData() {
             document.getElementById('loading').style.display = 'flex';
             try {
-                const res = await fetch(API + "?action=getData");
-                const data = await res.json();
-                rawData = data.phuongTien || [];
-                render(rawData);
-            } catch (e) { alert("Lỗi kết nối máy chủ Google!"); }
+                const response = await fetch(API_URL + "?action=getData");
+                const result = await response.json();
+                masterData = result.phuongTien || [];
+                renderList(masterData);
+            } catch (error) {
+                alert("Lỗi: Không thể lấy dữ liệu. Hãy kiểm tra kết nối mạng!");
+                console.error(error);
+            }
             document.getElementById('loading').style.display = 'none';
         }
 
-        function render(data) {
-            document.getElementById('c_all').innerText = rawData.length;
-            document.getElementById('c_ok').innerText = rawData.filter(i => String(findVal(i,'TinhTrang')).includes('Sẵn sàng')).length;
-            document.getElementById('c_fix').innerText = rawData.filter(i => String(findVal(i,'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
-            document.getElementById('c_bad').innerText = rawData.filter(i => String(findVal(i,'TinhTrang')).includes('Hỏng')).length;
+        // TÌM GIÁ TRỊ CỘT THÔNG MINH (Bất kể Thành gõ Tình trạng hay TinhTrang)
+        function getVal(obj, fieldName) {
+            const searchKey = fieldName.toLowerCase().replace(/\s/g, '');
+            for (let key in obj) {
+                if (key.toLowerCase().replace(/\s/g, '').includes(searchKey)) return obj[key];
+            }
+            return "";
+        }
 
-            const body = document.getElementById('listBody');
-            if(data.length === 0) { body.innerHTML = '<p class="text-center mt-5 text-muted">Trống</p>'; return; }
+        // HIỂN THỊ DANH SÁCH RA MÀN HÌNH
+        function renderList(data) {
+            // Cập nhật các con số thống kê
+            document.getElementById('c_all').innerText = masterData.length;
+            document.getElementById('c_ok').innerText = masterData.filter(i => String(getVal(i, 'TinhTrang')).includes('Sẵn sàng')).length;
+            document.getElementById('c_fix').innerText = masterData.filter(i => String(getVal(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
+            document.getElementById('c_bad').innerText = masterData.filter(i => String(getVal(i, 'TinhTrang')).includes('Hỏng')).length;
 
-            body.innerHTML = data.map(i => {
-                let st = String(findVal(i,'TinhTrang'));
-                let color = st.includes('Hỏng') ? 'danger' : (st.includes('bảo dưỡng') ? 'warning' : 'success');
+            const container = document.getElementById('listContainer');
+            if (data.length === 0) {
+                container.innerHTML = '<div class="text-center mt-5 text-muted">Chưa có dữ liệu phương tiện.</div>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => {
+                const status = String(getVal(item, 'TinhTrang'));
+                let borderClass = 'status-success';
+                let badgeClass = 'bg-success';
+
+                if (status.includes('Hỏng')) { borderClass = 'status-danger'; badgeClass = 'bg-danger'; }
+                else if (status.toLowerCase().includes('bảo dưỡng')) { borderClass = 'status-warning'; badgeClass = 'bg-warning text-dark'; }
+
                 return `
-                    <div class="item-card" style="border-left-color: var(--bs-${color})">
-                        <div class="d-flex justify-content-between">
+                    <div class="item-card ${borderClass}">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="fw-bold mb-0">${findVal(i,'Loai')}</h6>
-                                <small class="text-muted">${findVal(i,'KyHieu')} - ${findVal(i,'NguoiPhuTrach')}</small>
+                                <h6 class="fw-bold mb-1 text-dark">${getVal(item, 'Loai') || 'N/A'}</h6>
+                                <div class="small text-muted">
+                                    <i class="fas fa-id-card"></i> ${getVal(item, 'KyHieu')} 
+                                    <span class="mx-2">|</span> 
+                                    <i class="fas fa-user-cog"></i> ${getVal(item, 'NguoiPhuTrach')}
+                                </div>
+                                <div class="mt-1 small fw-bold text-primary">${getVal(item, 'TieuDoi') || ''}</div>
                             </div>
-                            <span class="badge bg-${color}">${st}</span>
+                            <span class="badge ${badgeClass}">${status}</span>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Hàm tìm giá trị thông minh: Thành gõ cột kiểu gì nó cũng tìm ra
-        function findVal(obj, keyName) {
-            let k = keyName.toLowerCase();
-            for (let prop in obj) {
-                if (prop.toLowerCase().replace(/\s/g, '').includes(k)) return obj[prop];
-            }
-            return "";
-        }
-
-        function filterData(st, el) {
+        // LỌC DỮ LIỆU THEO TRẠNG THÁI
+        function filterBy(status, element) {
             document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            render(st === 'all' ? rawData : rawData.filter(i => String(findVal(i,'TinhTrang')).includes(st)));
+            element.classList.add('active');
+
+            if (status === 'all') {
+                renderList(masterData);
+            } else {
+                const filtered = masterData.filter(i => String(getVal(i, 'TinhTrang')).includes(status));
+                renderList(filtered);
+            }
         }
     </script>
 </body>
