@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUẢN LÝ PCCC KV6 - V8.0 MASTER</title>
+    <title>QUẢN LÝ PCCC KV6 - V9.0 ULTIMATE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root { --red: #dc3545; --blue: #0d6efd; }
         body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .header { background: linear-gradient(135deg, var(--red), var(--blue)); color: white; padding: 20px; text-align: center; border-bottom: 5px solid #ffc107; }
+        .header { background: linear-gradient(135deg, var(--red), var(--blue)); color: white; padding: 20px; text-align: center; border-bottom: 5px solid #ffc107; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         #loginScreen { position: fixed; inset: 0; background: #1a1d20; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         #mainApp { display: none; padding-bottom: 50px; }
-        .stat-card { background: white; border-radius: 15px; padding: 10px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; height: 100%; }
+        .nav-tabs .nav-link { color: #495057; font-weight: bold; border: none; }
+        .nav-tabs .nav-link.active { color: var(--red); border-bottom: 3px solid var(--red); background: none; }
+        .stat-card { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; height: 100%; transition: 0.2s; }
         .stat-card.active { border-color: var(--red); background: #fff5f5; }
         .table-box { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 10px; }
         #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -24,25 +26,25 @@
     <div id="loginScreen">
         <div class="login-box">
             <i class="fas fa-lock fa-4x text-danger mb-3"></i>
-            <h4 class="fw-bold">HỆ THỐNG KV6</h4>
-            <input type="password" id="pass" class="form-control form-control-lg my-4 text-center" placeholder="Mật khẩu (114)">
-            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="doLogin()">MỞ KHÓA</button>
+            <h4 class="fw-bold">HỆ THỐNG NỘI BỘ KV6</h4>
+            <input type="password" id="pass" class="form-control form-control-lg my-4 text-center shadow-sm" placeholder="Mật khẩu (114)">
+            <button class="btn btn-danger btn-lg w-100 fw-bold shadow" onclick="doLogin()">MỞ KHÓA APP</button>
         </div>
     </div>
 
-    <div id="loading"><div class="spinner-border text-danger mb-2"></div><b id="loadText">Đang xử lý...</b></div>
+    <div id="loading"><div class="spinner-border text-danger mb-2"></div><b id="loadText">Đang xử lý dữ liệu...</b></div>
 
     <div id="mainApp">
         <div class="header">
-            <h3 class="fw-bold mb-0">QUẢN LÝ PHƯƠNG TIỆN KV6</h3>
+            <h3 class="fw-bold mb-0">HỆ THỐNG QUẢN LÝ KV6</h3>
             <div class="mt-2">
-                <button class="btn btn-sm btn-light fw-bold" onclick="fetchData()"><i class="fas fa-sync"></i> LÀM MỚI</button>
-                <button class="btn btn-sm btn-outline-light" onclick="logout()">THOÁT</button>
+                <button class="btn btn-sm btn-light fw-bold px-3 shadow-sm" onclick="fetchData()"><i class="fas fa-sync"></i> LÀM MỚI</button>
+                <button class="btn btn-sm btn-outline-light px-3" onclick="logout()">THOÁT</button>
             </div>
         </div>
 
         <div class="container mt-3">
-            <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto text-nowrap">
+            <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto text-nowrap no-scrollbar">
                 <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#t1">Tổng quan</a></li>
                 <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t2">Danh sách</a></li>
                 <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t3">Nhật ký</a></li>
@@ -57,46 +59,57 @@
                         <div class="col-3"><div class="stat-card" id="c-fix" onclick="filter('bảo dưỡng')"><h6>SỬA</h6><h4 id="v-fix" class="text-warning">0</h4></div></div>
                         <div class="col-3"><div class="stat-card" id="c-bad" onclick="filter('Hỏng')"><h6>HỎNG</h6><h4 id="v-bad" class="text-danger">0</h4></div></div>
                     </div>
-                    <div class="table-box">
-                        <table class="table table-sm align-middle"><thead class="table-light"><tr><th>Loại</th><th>Mã</th><th>Trạng thái</th></tr></thead><tbody id="dbTable"></tbody></table>
-                    </div>
+                    <div class="table-box"><table class="table table-sm align-middle"><thead><tr><th>Loại</th><th>Mã</th><th>Trạng thái</th></tr></thead><tbody id="dbTable"></tbody></table></div>
                 </div>
 
                 <div class="tab-pane fade" id="t2">
-                    <button class="btn btn-success w-100 mb-2 fw-bold" onclick="showAddPT()"><i class="fas fa-plus"></i> THÊM PHƯƠNG TIỆN MỚI</button>
-                    <div class="table-box">
-                        <table class="table table-hover align-middle"><thead class="table-dark"><tr><th>Loại/Tiểu đội</th><th>Ký hiệu</th><th>Trạng thái</th></tr></thead><tbody id="fullTable"></tbody></table>
-                    </div>
+                    <button class="btn btn-success w-100 mb-3 fw-bold shadow-sm" onclick="showAddPT()"><i class="fas fa-plus"></i> THÊM PHƯƠNG TIỆN</button>
+                    <div class="table-box"><table class="table table-hover align-middle"><thead><tr><th>Phương tiện</th><th>Mã</th><th>Trạng thái</th></tr></thead><tbody id="fullTable"></tbody></table></div>
                 </div>
 
                 <div class="tab-pane fade" id="t3">
-                    <button class="btn btn-primary w-100 mb-2 fw-bold" onclick="showAddNK()"><i class="fas fa-edit"></i> THÊM NHẬT KÝ MỚI</button>
-                    <div class="table-box">
-                        <table class="table table-sm"><thead><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th></tr></thead><tbody id="nkTable"></tbody></table>
-                    </div>
+                    <button class="btn btn-primary w-100 mb-3 fw-bold shadow-sm" onclick="showAddNK()"><i class="fas fa-edit"></i> THÊM NHẬT KÝ BẢO DƯỠNG</button>
+                    <div class="table-box"><table class="table table-sm"><thead><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th></tr></thead><tbody id="nkTable"></tbody></table></div>
                 </div>
 
                 <div class="tab-pane fade" id="t4">
-                    <button class="btn btn-secondary w-100 mb-2 fw-bold" onclick="showAddVT()"><i class="fas fa-box"></i> CẬP NHẬT VẬT TƯ</button>
-                    <div class="table-box">
-                        <table class="table table-sm"><thead><tr><th>Tên vật tư</th><th>Tồn</th><th>Trạng thái</th></tr></thead><tbody id="vtTable"></tbody></table>
-                    </div>
+                    <button class="btn btn-secondary w-100 mb-3 fw-bold shadow-sm" onclick="showAddVT()"><i class="fas fa-box"></i> CẬP NHẬT KHO VẬT TƯ</button>
+                    <div class="table-box"><table class="table table-sm"><thead><tr><th>Tên vật tư</th><th>Số lượng</th><th>Tình trạng</th></tr></thead><tbody id="vtTable"></tbody></table></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalPT" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header bg-success text-white"><h5>Thông tin phương tiện</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header bg-success text-white"><h5>Thêm Phương Tiện</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-            <input type="text" id="in-loai" class="form-control mb-2" placeholder="Loại (Xe chữa cháy, máy bơm...)">
-            <input type="text" id="in-ma" class="form-control mb-2" placeholder="Mã ký hiệu (PCCC-...)">
-            <input type="text" id="in-doi" class="form-control mb-2" placeholder="Tiểu đội">
-            <input type="text" id="in-nguoi" class="form-control mb-2" placeholder="Người phụ trách">
-            <select id="in-tt" class="form-select mb-2"><option value="Sẵn sàng">Sẵn sàng</option><option value="Cần bảo dưỡng">Cần bảo dưỡng</option><option value="Hỏng">Hỏng</option></select>
-            <input type="date" id="in-ngay" class="form-control">
+            <input type="text" id="pt-loai" class="form-control mb-2" placeholder="Loại xe/Máy bơm">
+            <input type="text" id="pt-ma" class="form-control mb-2" placeholder="Mã ký hiệu (PCCC-...)">
+            <input type="text" id="pt-doi" class="form-control mb-2" placeholder="Tiểu đội">
+            <input type="text" id="pt-nguoi" class="form-control mb-2" placeholder="Người phụ trách">
+            <select id="pt-tt" class="form-select mb-2"><option value="Sẵn sàng">Sẵn sàng</option><option value="Cần bảo dưỡng">Cần bảo dưỡng</option><option value="Hỏng">Hỏng</option></select>
+            <input type="date" id="pt-ngay" class="form-control">
         </div>
-        <div class="modal-footer"><button class="btn btn-success w-100" onclick="savePT()">LƯU LẠI</button></div>
+        <div class="modal-footer"><button class="btn btn-success w-100 fw-bold" onclick="savePT()">LƯU VÀO HỆ THỐNG</button></div>
+    </div></div></div>
+
+    <div class="modal fade" id="modalNK" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-primary text-white"><h5>Thêm Nhật Ký</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <input type="date" id="nk-ngay" class="form-control mb-2">
+            <input type="text" id="nk-ma" class="form-control mb-2" placeholder="Mã phương tiện (Ví dụ: PCCC-001)">
+            <textarea id="nk-nd" class="form-control mb-2" rows="3" placeholder="Nội dung bảo dưỡng/sửa chữa..."></textarea>
+        </div>
+        <div class="modal-footer"><button class="btn btn-primary w-100 fw-bold" onclick="saveNK()">GHI NHẬT KÝ</button></div>
+    </div></div></div>
+
+    <div class="modal fade" id="modalVT" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-secondary text-white"><h5>Cập Nhật Vật Tư</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <input type="text" id="vt-ten" class="form-control mb-2" placeholder="Tên vật tư (Bình bột, vòi...)">
+            <input type="number" id="vt-sl" class="form-control mb-2" placeholder="Số lượng tồn kho">
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary w-100 fw-bold" onclick="saveVT()">CẬP NHẬT KHO</button></div>
     </div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -104,10 +117,10 @@
         const API = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
         let db = { phuongTien: [], nhatKy: [], vatTu: [] };
 
-        // 1. QUẢN LÝ KHÓA
-        window.onload = () => { if(localStorage.getItem('auth_kv6') === 't') show(); };
-        function doLogin() { if(document.getElementById('pass').value === "114") { localStorage.setItem('auth_kv6', 't'); show(); } else alert("Sai mật khẩu!"); }
-        function show() { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; fetchData(); }
+        // 1. QUẢN LÝ ĐĂNG NHẬP
+        window.onload = () => { if(localStorage.getItem('kv6_auth') === 'true') unlock(); };
+        function doLogin() { if(document.getElementById('pass').value === "114") { localStorage.setItem('kv6_auth', 'true'); unlock(); } else alert("Mật khẩu sai!"); }
+        function unlock() { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; fetchData(); }
         function logout() { localStorage.clear(); location.reload(); }
 
         // 2. LẤY DỮ LIỆU
@@ -121,45 +134,68 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        // 3. GỬI DỮ LIỆU
-        async function sendData(sheet, data) {
+        // 3. LƯU DỮ LIỆU
+        async function sendToSheets(sheet, data) {
             document.getElementById('loading').style.display = 'flex';
             try {
                 await fetch(API, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'saveAll', sheetName: sheet, data: data }) });
-                alert("Đã gửi dữ liệu lên Sheets thành công!");
+                alert("Đã lưu thành công!");
                 fetchData();
-            } catch (e) { alert("Lỗi khi lưu!"); }
+            } catch (e) { alert("Lỗi khi gửi dữ liệu!"); }
         }
 
         // 4. HIỂN THỊ
-        function find(obj, f) { let s = f.toLowerCase().replace(/\s/g, ''); for (let k in obj) { if(k.toLowerCase().replace(/\s/g, '').includes(s)) return obj[k]; } return ""; }
+        function getV(obj, f) { let s = f.toLowerCase().replace(/\s/g, ''); for (let k in obj) { if(k.toLowerCase().replace(/\s/g, '').includes(s)) return obj[k]; } return ""; }
 
         function render() {
             const pt = db.phuongTien || [];
             document.getElementById('v-all').innerText = pt.length;
-            document.getElementById('v-ok').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Sẵn sàng')).length;
-            document.getElementById('v-fix').innerText = pt.filter(i => String(find(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
-            document.getElementById('v-bad').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Hỏng')).length;
+            document.getElementById('v-ok').innerText = pt.filter(i => String(getV(i, 'TinhTrang')).includes('Sẵn sàng')).length;
+            document.getElementById('v-fix').innerText = pt.filter(i => String(getV(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
+            document.getElementById('v-bad').innerText = pt.filter(i => String(getV(i, 'TinhTrang')).includes('Hỏng')).length;
 
-            const rT = (id, d, full) => {
-                document.getElementById(id).innerHTML = d.map(i => {
-                    let s = String(find(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
-                    if(!full) return `<tr><td><b>${find(i,'Loai')}</b></td><td>${find(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
-                    return `<tr><td><b>${find(i,'Loai')}</b><br><small>${find(i,'TieuDoi')}</small></td><td>${find(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
-                }).join('');
+            const makeRow = (i) => {
+                let s = String(getV(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
+                return `<tr><td><b>${getV(i,'Loai')}</b></td><td>${getV(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
             };
-            rT('dbTable', pt); rT('fullTable', pt, true);
-            document.getElementById('nkTable').innerHTML = (db.nhatKy || []).map(i => `<tr><td>${find(i,'Ngay')}</td><td><b>${find(i,'KyHieu')}</b></td><td>${find(i,'NoiDung')}</td></tr>`).join('');
-            document.getElementById('vtTable').innerHTML = (db.vatTu || []).map(i => { let t = parseInt(find(i,'SoLuong')) || 0; return `<tr><td><b>${find(i,'Ten')}</b></td><td>${t}</td><td><span class="badge bg-${t > 0 ? 'success' : 'danger'}">${t > 0 ? 'Còn' : 'Hết'}</span></td></tr>`; }).join('');
+            document.getElementById('dbTable').innerHTML = pt.map(makeRow).join('');
+            document.getElementById('fullTable').innerHTML = pt.map(i => {
+                let s = String(getV(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
+                return `<tr><td><b>${getV(i,'Loai')}</b><br><small class="text-muted">${getV(i,'TieuDoi')}</small></td><td>${getV(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
+            }).join('');
+
+            document.getElementById('nkTable').innerHTML = (db.nhatKy || []).map(i => `<tr><td>${getV(i,'Ngay')}</td><td><b>${getV(i,'KyHieu')}</b></td><td>${getV(i,'NoiDung')}</td></tr>`).join('');
+            document.getElementById('vtTable').innerHTML = (db.vatTu || []).map(i => {
+                let sl = parseInt(getV(i,'SoLuong')) || 0;
+                return `<tr><td><b>${getV(i,'Ten')}</b></td><td>${sl}</td><td><span class="badge bg-${sl > 0 ? 'success' : 'danger'}">${sl > 0 ? 'Còn hàng' : 'Hết hàng'}</span></td></tr>`;
+            }).join('');
         }
 
-        // 5. THÊM MỚI
+        // 5. CÁC NÚT BẤM THÊM MỚI
         function showAddPT() { new bootstrap.Modal(document.getElementById('modalPT')).show(); }
         function savePT() {
-            const item = { Loai: document.getElementById('in-loai').value, KyHieu: document.getElementById('in-ma').value, TieuDoi: document.getElementById('in-doi').value, NguoiPhuTrach: document.getElementById('in-nguoi').value, TinhTrang: document.getElementById('in-tt').value, NgayKiemDinh: document.getElementById('in-ngay').value };
+            const item = { Loai: document.getElementById('pt-loai').value, KyHieu: document.getElementById('pt-ma').value, TieuDoi: document.getElementById('pt-doi').value, NguoiPhuTrach: document.getElementById('pt-nguoi').value, TinhTrang: document.getElementById('pt-tt').value, NgayKiemDinh: document.getElementById('pt-ngay').value };
             db.phuongTien.push(item);
             bootstrap.Modal.getInstance(document.getElementById('modalPT')).hide();
-            sendData('PhuongTien', db.phuongTien);
+            sendToSheets('PhuongTien', db.phuongTien);
+        }
+
+        function showAddNK() { document.getElementById('nk-ngay').valueAsDate = new Date(); new bootstrap.Modal(document.getElementById('modalNK')).show(); }
+        function saveNK() {
+            const item = { Ngay: document.getElementById('nk-ngay').value, KyHieu: document.getElementById('nk-ma').value, NoiDung: document.getElementById('nk-nd').value };
+            db.nhatKy.unshift(item); // Đưa cái mới lên đầu
+            bootstrap.Modal.getInstance(document.getElementById('modalNK')).hide();
+            sendToSheets('NhatKy', db.nhatKy);
+        }
+
+        function showAddVT() { new bootstrap.Modal(document.getElementById('modalVT')).show(); }
+        function saveVT() {
+            const item = { Ten: document.getElementById('vt-ten').value, SoLuong: document.getElementById('vt-sl').value };
+            // Nếu vật tư đã có thì cập nhật, chưa có thì thêm mới
+            let idx = db.vatTu.findIndex(v => getV(v, 'Ten').toLowerCase() === item.Ten.toLowerCase());
+            if(idx > -1) db.vatTu[idx] = item; else db.vatTu.push(item);
+            bootstrap.Modal.getInstance(document.getElementById('modalVT')).hide();
+            sendToSheets('VatTu', db.vatTu);
         }
 
         function filter(s) {
@@ -168,9 +204,10 @@
             else { 
                 const id = s === 'Sẵn sàng' ? 'c-ok' : (s === 'bảo dưỡng' ? 'c-fix' : 'c-bad');
                 document.getElementById(id).classList.add('active');
-                const pt = db.phuongTien.filter(i => String(find(i, 'TinhTrang')).includes(s));
-                const body = document.getElementById('dbTable');
-                body.innerHTML = pt.map(i => `<tr><td><b>${find(i,'Loai')}</b></td><td>${find(i,'KyHieu')}</td><td><span class="badge bg-${s.includes('Hỏng')?'danger':s.includes('bảo dưỡng')?'warning text-dark':'success'}">${find(i,'TinhTrang')}</span></td></tr>`).join('');
+                document.getElementById('dbTable').innerHTML = db.phuongTien.filter(i => String(getV(i, 'TinhTrang')).includes(s)).map(i => {
+                    let s = String(getV(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
+                    return `<tr><td><b>${getV(i,'Loai')}</b></td><td>${getV(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
+                }).join('');
             }
         }
     </script>
