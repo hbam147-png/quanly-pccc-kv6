@@ -3,234 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUẢN LÝ PCCC KV6 - V6.0 FINAL</title>
-   
+    <title>QUẢN LÝ PCCC KV6 - V7.0 FINAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-   
     <style>
-        :root { --pccc-red: #dc3545; --pccc-blue: #0d6efd; --pccc-gold: #ffc107; }
-        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; }
-       
+        :root { --red: #dc3545; --blue: #0d6efd; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .header { background: linear-gradient(135deg, var(--red), var(--blue)); color: white; padding: 25px; text-align: center; border-bottom: 5px solid #ffc107; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         #loginScreen { position: fixed; inset: 0; background: #1a1d20; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 35px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-top: 8px solid var(--pccc-red); }
-       
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
         #mainApp { display: none; }
-        .header { background: linear-gradient(135deg, var(--pccc-red), var(--pccc-blue)); color: white; padding: 25px 15px; text-align: center; border-bottom: 5px solid var(--pccc-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-       
-        .nav-tabs { background: white; border: none; padding: 5px 10px 0; border-radius: 15px 15px 0 0; }
-        .nav-link { border: none !important; font-weight: bold; color: #6c757d; padding: 12px 20px; transition: 0.3s; }
-        .nav-link.active { color: var(--pccc-red) !important; border-bottom: 4px solid var(--pccc-red) !important; background: transparent !important; }
-       
-        .stat-card { background: white; border-radius: 20px; padding: 15px 5px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; border: 3px solid transparent; transition: 0.3s; height: 100%; }
-        .stat-card.active { border-color: var(--pccc-red); background: #fff5f5; transform: translateY(-5px); }
-        .stat-card h6 { font-size: 0.75rem; letter-spacing: 1px; color: #888; margin-bottom: 5px; }
-        .stat-card h3 { font-weight: 800; margin-bottom: 0; }
-       
-        .table-box { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .badge-pccc { padding: 6px 12px; border-radius: 30px; font-weight: bold; font-size: 0.75rem; }
-       
+        .stat-card { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid transparent; height: 100%; }
+        .stat-card.active { border-color: var(--red); background: #fff5f5; }
+        .table-responsive { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner-pccc { width: 3rem; height: 3rem; border: 5px solid #f3f3f3; border-top: 5px solid var(--pccc-red); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-       
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-       
-        .empty-row { text-align: center; color: #888; padding: 30px 10px; font-style: italic; }
     </style>
 </head>
 <body>
     <div id="loginScreen">
         <div class="login-box">
-            <div class="mb-3"><i class="fas fa-user-shield fa-4x text-danger"></i></div>
-            <h3 class="fw-bold mb-1">XÁC THỰC</h3>
-            <p class="text-muted small mb-4">Hệ thống nội bộ Đội KV6 - Quảng Ninh</p>
-            <input type="password" id="passCode" class="form-control form-control-lg mb-4 text-center shadow-sm" placeholder="Mật khẩu (114)" autofocus>
-            <button class="btn btn-danger btn-lg w-100 fw-bold shadow" onclick="validateLogin()">ĐĂNG NHẬP NGAY</button>
+            <i class="fas fa-shield-alt fa-4x text-danger mb-3"></i>
+            <h4 class="fw-bold">XÁC THỰC NỘI BỘ</h4>
+            <input type="password" id="pass" class="form-control form-control-lg my-4 text-center" placeholder="Mật khẩu (114)">
+            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="doLogin()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
-    <div id="loading">
-        <div class="spinner-pccc mb-3"></div>
-        <h5 class="fw-bold text-danger">ĐANG KẾT NỐI VỆ TINH...</h5>
-        <p class="text-muted small">Vui lòng đợi trong giây lát</p>
-    </div>
+    <div id="loading"><div class="spinner-border text-danger mb-2"></div><b>Đang lấy dữ liệu trực tuyến...</b></div>
 
     <div id="mainApp">
         <div class="header">
-            <h2 class="fw-bold mb-1"><i class="fas fa-fire-extinguisher"></i> QUẢN LÝ KV6</h2>
-            <p class="small opacity-75 mb-3">Dữ liệu trực tuyến từ Google Sheets</p>
+            <h3 class="fw-bold mb-0">HỆ THỐNG QUẢN LÝ KV6</h3>
+            <p class="small mb-2">Cập nhật thời gian thực</p>
             <div class="d-flex justify-content-center gap-2">
-                <button class="btn btn-sm btn-light fw-bold px-3 shadow-sm" onclick="syncData()"><i class="fas fa-sync-alt"></i> LÀM MỚI</button>
-                <button class="btn btn-sm btn-outline-light px-3" onclick="logoutApp()">THOÁT</button>
+                <button class="btn btn-sm btn-light fw-bold" onclick="fetchData()">LÀM MỚI</button>
+                <button class="btn btn-sm btn-outline-light" onclick="logout()">THOÁT</button>
             </div>
         </div>
 
         <div class="container mt-3">
-            <ul class="nav nav-tabs mb-4 flex-nowrap overflow-auto no-scrollbar">
-                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab1"><i class="fas fa-th-large"></i> Tổng quan</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab2"><i class="fas fa-list"></i> Danh sách</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab3"><i class="fas fa-tools"></i> Bảo dưỡng</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab4"><i class="fas fa-box-open"></i> Vật tư</a></li>
+            <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto text-nowrap">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#t1">Tổng quan</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t2">Danh sách PT</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t3">Nhật ký</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#t4">Vật tư</a></li>
             </ul>
 
             <div class="tab-content">
-                <div class="tab-pane fade show active" id="tab1">
+                <div class="tab-pane fade show active" id="t1">
                     <div class="row g-2 mb-4">
-                        <div class="col-3"><div class="stat-card active" id="card-all" onclick="applyFilter('all')"><h6>TỔNG</h6><h3 id="v-all" class="text-primary">0</h3></div></div>
-                        <div class="col-3"><div class="stat-card" id="card-ok" onclick="applyFilter('Sẵn sàng')"><h6>TỐT</h6><h3 id="v-ok" class="text-success">0</h3></div></div>
-                        <div class="col-3"><div class="stat-card" id="card-fix" onclick="applyFilter('bảo dưỡng')"><h6>SỬA</h6><h3 id="v-fix" class="text-warning">0</h3></div></div>
-                        <div class="col-3"><div class="stat-card" id="card-bad" onclick="applyFilter('Hỏng')"><h6>HỎNG</h6><h3 id="v-bad" class="text-danger">0</h3></div></div>
+                        <div class="col-3"><div class="stat-card active" id="c-all" onclick="filter('all')"><h6>TỔNG</h6><h4 id="v-all">0</h4></div></div>
+                        <div class="col-3"><div class="stat-card" id="c-ok" onclick="filter('Sẵn sàng')"><h6>TỐT</h6><h4 id="v-ok" class="text-success">0</h4></div></div>
+                        <div class="col-3"><div class="stat-card" id="c-fix" onclick="filter('bảo dưỡng')"><h6>SỬA</h6><h4 id="v-fix" class="text-warning">0</h4></div></div>
+                        <div class="col-3"><div class="stat-card" id="c-bad" onclick="filter('Hỏng')"><h6>HỎNG</h6><h4 id="v-bad" class="text-danger">0</h4></div></div>
                     </div>
-                    <div class="table-box">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead class="table-light"><tr><th>Loại</th><th>Mã xe</th><th>Trạng thái</th></tr></thead>
-                            <tbody id="dashTable"></tbody>
-                        </table>
-                    </div>
+                    <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Loại</th><th>Ký hiệu</th><th>Trạng thái</th></tr></thead><tbody id="dbTable"></tbody></table></div>
                 </div>
-                <div class="tab-pane fade" id="tab2">
-                    <div class="table-box">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-dark"><tr><th>Phương tiện</th><th>Mã</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead>
-                            <tbody id="fullTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="tab3">
-                    <div class="table-box">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung thực hiện</th></tr></thead>
-                            <tbody id="logTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="tab4">
-                    <div class="table-box">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead class="table-secondary"><tr><th>Tên vật tư</th><th>Tồn kho</th><th>Tình trạng</th></tr></thead>
-                            <tbody id="supplyTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <div class="tab-pane fade" id="t2"><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-dark"><tr><th>Loại</th><th>Mã</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead><tbody id="fullTable"></tbody></table></div></div>
+                <div class="tab-pane fade" id="t3"><div class="table-responsive"><table class="table table-sm"><thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th></tr></thead><tbody id="nkTable"></tbody></table></div></div>
+                <div class="tab-pane fade" id="t4"><div class="table-responsive"><table class="table table-sm"><thead class="table-secondary"><tr><th>Vật tư</th><th>Tồn</th><th>Trạng thái</th></tr></thead><tbody id="vtTable"></tbody></table></div></div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
-        const PASS_APP = "114";
-        let db = { phuongTien: [], nhatKy: [], vatTu: [] };
+        // LINK API MỚI NHẤT CỦA THÀNH
+        const API = "https://script.google.com/macros/s/AKfycbxvcLyOYa6eHyA7yTiQBAZa7pQwPFDdwlAeoyS_pMwj5-KWTNV-eijY5FIGMtzLcMO9zg/exec";
+        let mData = { phuongTien: [], nhatKy: [], vatTu: [] };
 
-        window.onload = () => { if(localStorage.getItem('kv6_v6_auth') === 'done') unlock(); };
+        window.onload = () => { if(localStorage.getItem('auth_kv6') === 't') show(); };
+        function doLogin() { if(document.getElementById('pass').value === "114") { localStorage.setItem('auth_kv6', 't'); show(); } else alert("Sai mật khẩu!"); }
+        function show() { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; fetchData(); }
+        function logout() { localStorage.clear(); location.reload(); }
 
-        function validateLogin() {
-            if(document.getElementById('passCode').value === PASS_APP) {
-                localStorage.setItem('kv6_v6_auth', 'done');
-                unlock();
-            } else { alert("Mật khẩu không chính xác!"); }
-        }
-
-        function unlock() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            syncData();
-        }
-
-        function logoutApp() {
-            if(confirm("Bạn có chắc muốn thoát?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // === ĐÃ SỬA: DÙNG GET ĐỂ TRÁNH LỖI FAILED TO FETCH ===
-        async function syncData() {
+        async function fetchData() {
             document.getElementById('loading').style.display = 'flex';
             try {
-                const r = await fetch(API_URL + "?action=getData");
-                if (!r.ok) throw new Error("HTTP " + r.status);
-                db = await r.json();
-
-                if (!db.phuongTien) db.phuongTien = [];
-                if (!db.nhatKy) db.nhatKy = [];
-                if (!db.vatTu) db.vatTu = [];
-
-                renderAll();
-            } catch (e) {
-                console.error(e);
-                alert("❌ Lỗi kết nối đến Google Sheets!\n\n" +
-                      "Vui lòng kiểm tra:\n" +
-                      "1. Web App đã deploy với quyền 'Anyone'\n" +
-                      "2. Hàm doGet() hoặc doPost() trong Apps Script có xử lý action 'getData'\n\n" +
-                      "Chi tiết: " + e.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
+                const res = await fetch(API + "?action=getData");
+                mData = await res.json();
+                render();
+            } catch (e) { alert("Lỗi kết nối! Hãy kiểm tra link API hoặc Quyền truy cập."); }
+            document.getElementById('loading').style.display = 'none';
         }
 
-        function find(obj, field) {
-            if (!obj || typeof obj !== 'object') return "";
-            const f = field.toLowerCase().trim();
-            for (let k in obj) {
-                if (!k) continue;
-                const keyLower = k.toLowerCase();
-                if (keyLower.includes(f) || keyLower.normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(f)) {
-                    return String(obj[k] || "").trim();
-                }
-            }
+        function gV(obj, f) { 
+            let s = f.toLowerCase().replace(/\s/g, '');
+            for (let k in obj) { if(k.toLowerCase().replace(/\s/g, '').includes(s)) return obj[k]; }
             return "";
         }
 
-        function renderAll() {
-            const pt = db.phuongTien || [];
+        function render() {
+            const pt = mData.phuongTien || [];
             document.getElementById('v-all').innerText = pt.length;
-            document.getElementById('v-ok').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Sẵn sàng')).length;
-            document.getElementById('v-fix').innerText = pt.filter(i => String(find(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
-            document.getElementById('v-bad').innerText = pt.filter(i => String(find(i, 'TinhTrang')).includes('Hỏng')).length;
-
-            renderList('dashTable', pt);
-            renderList('fullTableBody', pt, true);
-
-            const logBody = document.getElementById('logTableBody');
-            logBody.innerHTML = (db.nhatKy || []).map(i => `
-                <tr><td>${find(i,'Ngay')}</td><td><b class="text-danger">${find(i,'KyHieu')}</b></td><td>${find(i,'NoiDung')}</td></tr>
-            `).join('');
-            if (db.nhatKy.length === 0) logBody.innerHTML = `<tr><td colspan="3" class="empty-row">Chưa có dữ liệu nhật ký</td></tr>`;
-
-            const supplyBody = document.getElementById('supplyTableBody');
-            supplyBody.innerHTML = (db.vatTu || []).map(i => {
-                let sl = parseInt(find(i,'SoLuong')) || 0;
-                return `<tr><td><b>${find(i,'Ten')}</b></td><td>${sl}</td><td><span class="badge bg-${sl > 0 ? 'success' : 'danger'}">${sl > 0 ? 'Còn hàng' : 'Hết hàng'}</span></td></tr>`;
-            }).join('');
-            if (db.vatTu.length === 0) supplyBody.innerHTML = `<tr><td colspan="3" class="empty-row">Chưa có dữ liệu vật tư</td></tr>`;
+            document.getElementById('v-ok').innerText = pt.filter(i => String(gV(i, 'TinhTrang')).includes('Sẵn sàng')).length;
+            document.getElementById('v-fix').innerText = pt.filter(i => String(gV(i, 'TinhTrang')).toLowerCase().includes('bảo dưỡng')).length;
+            document.getElementById('v-bad').innerText = pt.filter(i => String(getV(i, 'TinhTrang')).includes('Hỏng')).length;
+            
+            rT('dbTable', pt); rT('fullTable', pt, true);
+            document.getElementById('nkTable').innerHTML = (mData.nhatKy || []).map(i => `<tr><td>${gV(i,'Ngay')}</td><td><b>${gV(i,'KyHieu')}</b></td><td>${gV(i,'NoiDung')}</td></tr>`).join('');
+            document.getElementById('vtTable').innerHTML = (mData.vatTu || []).map(i => { let t = parseInt(gV(i,'SoLuong')) || 0; return `<tr><td><b>${gV(i,'Ten')}</b></td><td>${t}</td><td><span class="badge bg-${t > 0 ? 'success' : 'danger'}">${t > 0 ? 'Còn' : 'Hết'}</span></td></tr>`; }).join('');
         }
 
-        function renderList(id, data, isFull = false) {
-            const tbody = document.getElementById(id);
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isFull ? 4 : 3}" class="empty-row">Không có dữ liệu</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = data.map(i => {
-                let st = String(find(i, 'TinhTrang'));
-                let c = st.includes('Hỏng') ? 'danger' : (st.toLowerCase().includes('bảo dưỡng') ? 'warning text-dark' : 'success');
-                if (!isFull) return `<tr><td><b>${find(i,'Loai')}</b></td><td>${find(i,'KyHieu')}</td><td><span class="badge-pccc bg-${c}">${st || 'Chưa cập nhật'}</span></td></tr>`;
-                return `<tr><td><b>${find(i,'Loai')}</b><br><small class="text-muted">${find(i,'TieuDoi')}</small></td><td>${find(i,'KyHieu')}</td><td>${find(i,'NguoiPhuTrach')}</td><td><span class="badge-pccc bg-${c}">${st || 'Chưa cập nhật'}</span></td></tr>`;
+        function rT(id, d, f = false) {
+            document.getElementById(id).innerHTML = d.map(i => {
+                let s = String(gV(i, 'TinhTrang')); let c = s.includes('Hỏng') ? 'danger' : (s.includes('bảo dưỡng') ? 'warning text-dark' : 'success');
+                if(!f) return `<tr><td><b>${gV(i,'Loai')}</b></td><td>${gV(i,'KyHieu')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
+                return `<tr><td><b>${gV(i,'Loai')}</b><br><small>${gV(i,'TieuDoi')}</small></td><td>${gV(i,'KyHieu')}</td><td>${gV(i,'NguoiPhuTrach')}</td><td><span class="badge bg-${c}">${s}</span></td></tr>`;
             }).join('');
         }
 
-        function applyFilter(st) {
+        function filter(s) {
             document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            if (st === 'all') {
-                document.getElementById('card-all').classList.add('active');
-                renderList('dashTable', db.phuongTien);
-            } else {
-                const cid = st === 'Sẵn sàng' ? 'card-ok' : (st === 'bảo dưỡng' ? 'card-fix' : 'card-bad');
-                document.getElementById(cid).classList.add('active');
-                renderList('dashTable', db.phuongTien.filter(i => String(find(i, 'TinhTrang')).includes(st)));
+            if(s === 'all') { document.getElementById('c-all').classList.add('active'); rT('dbTable', mData.phuongTien); }
+            else { 
+                const id = s === 'Sẵn sàng' ? 'c-ok' : (s === 'bảo dưỡng' ? 'c-fix' : 'c-bad');
+                document.getElementById(id).classList.add('active');
+                rT('dbTable', mData.phuongTien.filter(i => String(gV(i, 'TinhTrang')).includes(s))); 
             }
         }
     </script>
