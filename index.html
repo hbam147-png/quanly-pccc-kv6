@@ -3,335 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Phương tiện PCCC & CNCH - Đội Khu vực 6</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#dc3545">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="QL Xe PCCC">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/dc3545/white.png?text=PCCC">
-
+    <title>Quản lý PCCC - Đội KV6</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; margin: 0; padding: 0;}
-        .header { background: linear-gradient(135deg, #dc3545, #0d6efd); color: white; padding: 2rem 0; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .nav-link { color: #495057; font-weight: 500; }
-        .nav-link.active { background-color: #dc3545 !important; color: white !important; font-weight: bold; }
-        .stat-card { transition: all 0.3s; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .stat-card.active { border: 3px solid #dc3545; }
-        .status-tot { color: #198754; font-weight: bold; }
-        .status-can { color: #fd7e14; font-weight: bold; }
-        .status-hong { color: #dc3545; font-weight: bold; }
-        .table-responsive { max-height: 520px; overflow-y: auto; }
-        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
-        .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
-        @media (max-width: 576px) { .btn { margin-bottom: 8px; font-size: 0.9rem; } .nav-tabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } }
-        
-        /* GIAO DIỆN MÀN HÌNH ĐĂNG NHẬP */
-        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #212529; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 400px; }
-        .login-logo { font-size: 3rem; color: #dc3545; margin-bottom: 1rem; }
-        #mainApp { display: none; } /* Ẩn toàn bộ App lúc chưa đăng nhập */
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+        .header { background: linear-gradient(135deg, #dc3545, #0d6efd); color: white; padding: 1.5rem 1rem; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1d20; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 2.5rem; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        #mainApp { display: none; padding-bottom: 30px; }
+        .stat-card { background: white; border-radius: 15px; padding: 0.8rem; text-align: center; border: 2px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; height: 100%; }
+        .stat-card.active { border-color: #dc3545; background: #fff5f5; transform: translateY(-3px); }
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .vehicle-card { background: white; border-radius: 12px; padding: 10px; margin-bottom: 10px; border-left: 5px solid #6c757d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .status-ready { border-left-color: #198754; }
+        .status-fix { border-left-color: #ffc107; }
+        .status-bad { border-left-color: #dc3545; }
     </style>
 </head>
 <body>
     <div id="loginScreen">
         <div class="login-box">
-            <i class="fas fa-shield-alt login-logo"></i>
-            <h3 class="fw-bold mb-1">XÁC THỰC</h3>
-            <p class="text-muted mb-4 small">Hệ thống nội bộ Đội CC&CNCH KV6</p>
-            <input type="password" id="appPassword" class="form-control form-control-lg mb-3 text-center" placeholder="Nhập mật khẩu..." onkeypress="handleEnter(event)">
-            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="checkLogin()">VÀO HỆ THỐNG</button>
-            <p id="loginError" class="text-danger mt-3 mb-0 fw-bold" style="display:none; font-size: 0.9rem;"><i class="fas fa-exclamation-triangle"></i> Sai mật khẩu!</p>
+            <div class="mb-3"><i class="fas fa-user-shield fa-4x text-danger"></i></div>
+            <h4 class="fw-bold mb-3">ĐỘI PCCC KV6</h4>
+            <input type="password" id="appPassword" class="form-control form-control-lg mb-3 text-center" placeholder="Mật khẩu nội bộ">
+            <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="checkLogin()">ĐĂNG NHẬP</button>
         </div>
     </div>
 
-    <div id="loadingOverlay">
-        <div class="spinner-border mb-3" role="status"></div>
-        <h5 class="text-danger fw-bold" id="loadingText">Đang đồng bộ dữ liệu...</h5>
-    </div>
+    <div id="loadingOverlay"><div class="spinner-grow text-danger mb-2"></div><b id="loadingText">Đang kết nối vệ tinh...</b></div>
 
     <div id="mainApp">
         <div class="header">
-            <h1><i class="fas fa-fire-extinguisher"></i> Đội Chữa cháy & CNCH Khu vực 6</h1>
-            <p>Hệ thống Quản lý Phương tiện & Hậu cần Kỹ thuật (Cloud Sync)</p>
-            <button class="btn btn-sm btn-outline-light mt-2" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            <h3 class="fw-bold mb-0">HỆ THỐNG QUẢN LÝ</h3>
+            <p class="small mb-2">Cập nhật dữ liệu thời gian thực</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-light fw-bold" onclick="fetchData()"><i class="fas fa-sync"></i> LÀM MỚI</button>
+                <button class="btn btn-sm btn-outline-light" onclick="logout()">THOÁT</button>
+            </div>
         </div>
 
-        <div class="container mt-4">
-            <ul class="nav nav-tabs mb-4">
-                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#dashboard"><i class="fas fa-home"></i> Tổng quan</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#list"><i class="fas fa-truck"></i> DS Phương tiện</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#nhatky"><i class="fas fa-history"></i> Nhật ký BD</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#vattu"><i class="fas fa-boxes"></i> Vật tư tiêu hao</a></li>
-            </ul>
-
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="dashboard">
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center active" onclick="filterByStatus('all', this)"><h5>Tổng</h5><h2 id="total" class="text-primary">0</h2></div></div>
-                        <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('san-sang', this)"><h5>Sẵn sàng</h5><h2 id="ready" class="status-tot">0</h2></div></div>
-                        <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('can-bd', this)"><h5>Cần sửa</h5><h2 id="canSua" class="status-can">0</h2></div></div>
-                        <div class="col-6 col-md-3"><div class="card stat-card p-3 text-center" onclick="filterByStatus('hong', this)"><h5>Hỏng</h5><h2 id="hong" class="status-hong">0</h2></div></div>
-                    </div>
-                    <div class="d-flex gap-2 mb-4">
-                        <button class="btn btn-primary flex-fill" onclick="fetchData()"><i class="fas fa-sync-alt"></i> Tải lại dữ liệu</button>
-                    </div>
-                    <div class="table-responsive border rounded bg-white shadow-sm">
-                        <table class="table table-hover table-sm mb-0">
-                            <thead class="table-light"><tr><th>Loại</th><th>Mã</th><th>Tình trạng</th><th>Ngày kiểm định</th></tr></thead>
-                            <tbody id="dashboardTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="list">
-                    <div class="d-flex justify-content-between mb-3">
-                        <button class="btn btn-success" onclick="showAddModal()"><i class="fas fa-plus"></i> Thêm mới</button>
-                        <input type="text" id="searchInput" class="form-control w-50" placeholder="Tìm kiếm..." oninput="filterFullTable()">
-                    </div>
-                    <div class="table-responsive border rounded bg-white shadow-sm">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-dark"><tr><th>Loại</th><th>Mã</th><th>Tiểu đội</th><th>Phụ trách</th><th>Tình trạng</th><th>Thao tác</th></tr></thead>
-                            <tbody id="fullTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="nhatky">
-                    <button class="btn btn-success mb-3" onclick="showLogModal()"><i class="fas fa-plus"></i> Thêm Nhật ký</button>
-                    <div class="table-responsive border rounded bg-white shadow-sm">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-primary"><tr><th>Ngày</th><th>Mã PT</th><th>Nội dung</th><th>Người làm</th></tr></thead>
-                            <tbody id="logTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="vattu">
-                    <button class="btn btn-success mb-3" onclick="showVatTuModal()"><i class="fas fa-plus"></i> Cập nhật Vật tư</button>
-                    <div class="table-responsive border rounded bg-white shadow-sm">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-secondary"><tr><th>Tên vật tư</th><th>Tồn kho</th><th>Cảnh báo</th><th>Tình trạng</th><th>Thao tác</th></tr></thead>
-                            <tbody id="vattuTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="container mt-3">
+            <div class="row g-2 mb-4">
+                <div class="col-3"><div class="stat-card active" onclick="filterData('all', this)"><h6>Tổng</h6><h3 id="count_all" class="text-primary">0</h3></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterData('Sẵn sàng', this)"><h6>Tốt</h6><h3 id="count_ok" class="text-success">0</h3></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterData('bảo dưỡng', this)"><h6>Sửa</h6><h3 id="count_fix" class="text-warning">0</h3></div></div>
+                <div class="col-3"><div class="stat-card" onclick="filterData('Hỏng', this)"><h6>Hỏng</h6><h3 id="count_bad" class="text-danger">0</h3></div></div>
             </div>
+
+            <div id="dataList">
+                </div>
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header bg-success text-white"><h5 class="modal-title">Thông tin phương tiện</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <input type="hidden" id="editIndexPT" value="-1">
-            <div class="mb-2"><label>Loại PT</label><input type="text" id="ptLoai" class="form-control"></div>
-            <div class="mb-2"><label>Mã ký hiệu</label><input type="text" id="ptKyHieu" class="form-control"></div>
-            <div class="mb-2"><label>Tiểu đội</label><input type="text" id="ptTieuDoi" class="form-control"></div>
-            <div class="mb-2"><label>Người phụ trách</label><input type="text" id="ptNguoi" class="form-control"></div>
-            <div class="mb-2"><label>Tình trạng</label><select id="ptTinhTrang" class="form-select"><option value="Sẵn sàng">Sẵn sàng</option><option value="Cần sửa">Cần sửa</option><option value="Hỏng">Hỏng</option></select></div>
-            <div class="mb-2"><label>Ngày KĐ</label><input type="date" id="ptNgay" class="form-control"></div>
-        </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-success" onclick="savePT()">Lưu</button></div>
-    </div></div></div>
-
-    <div class="modal fade" id="logModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header bg-primary text-white"><h5 class="modal-title">Thêm Nhật ký</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <div class="mb-2"><label>Ngày</label><input type="date" id="logNgay" class="form-control"></div>
-            <div class="mb-2"><label>Mã PT</label><input type="text" id="logKyHieu" class="form-control"></div>
-            <div class="mb-2"><label>Nội dung</label><input type="text" id="logNoiDung" class="form-control"></div>
-            <div class="mb-2"><label>Người làm</label><input type="text" id="logNguoi" class="form-control"></div>
-        </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-primary" onclick="saveLog()">Lưu</button></div>
-    </div></div></div>
-
-    <div class="modal fade" id="vatTuModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header bg-secondary text-white"><h5 class="modal-title">Cập nhật Vật tư</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <input type="hidden" id="editIndexVT" value="-1">
-            <div class="mb-2"><label>Tên vật tư</label><input type="text" id="vtTen" class="form-control"></div>
-            <div class="mb-2"><label>Tồn kho</label><input type="number" id="vtTon" class="form-control"></div>
-            <div class="mb-2"><label>Cảnh báo khi dưới</label><input type="number" id="vtCanhBao" class="form-control"></div>
-        </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-secondary" style="background:#6c757d;color:white" onclick="saveVT()">Lưu</button></div>
-    </div></div></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwKxsoaEXj1OPOXQ5P7jEv_C0R-OG0wEUTVsc3r9IndLuT1Htg2IFv0al_EBqzxgaVc/exec";
+        const PASS = "114";
+        let fullData = [];
 
-        // ================= CÀI ĐẶT MẬT KHẨU Ở ĐÂY =================
-        const MAT_KHAU_APP = "114"; // Bạn có thể thay số 114 bằng mật khẩu khác (ví dụ: "kv6pccc")
-        // ==========================================================
-
-        // HỆ THỐNG ĐĂNG NHẬP
-        window.onload = function() {
-            // Kiểm tra xem máy này đã từng đăng nhập đúng chưa
-            if(localStorage.getItem('daDangNhapKV6') === 'true') {
-                moKhoaUngDung();
-            }
-            // Nếu chưa thì để nguyên màn hình đăng nhập
-        };
+        window.onload = () => { if(localStorage.getItem('kv6_auth') === 'true') loginOk(); };
 
         function checkLogin() {
-            const pass = document.getElementById('appPassword').value;
-            if(pass === MAT_KHAU_APP) {
-                // Lưu vào bộ nhớ đệm điện thoại
-                localStorage.setItem('daDangNhapKV6', 'true');
-                moKhoaUngDung();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-            }
+            if(document.getElementById('appPassword').value === PASS) {
+                localStorage.setItem('kv6_auth', 'true');
+                loginOk();
+            } else { alert("Mật khẩu không đúng!"); }
         }
 
-        // Hỗ trợ ấn Enter để đăng nhập
-        function handleEnter(e) { if(e.key === 'Enter') checkLogin(); }
-
-        function moKhoaUngDung() {
-            document.getElementById('loginScreen').style.display = 'none'; // Ẩn màn hình đăng nhập
-            document.getElementById('mainApp').style.display = 'block';    // Hiện giao diện app
-            fetchData(); // Bắt đầu tải dữ liệu từ Google Sheets
+        function loginOk() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            fetchData();
         }
 
-        function logout() {
-            localStorage.removeItem('daDangNhapKV6'); // Xóa trí nhớ
-            location.reload(); // Tải lại trang web
-        }
+        function logout() { localStorage.clear(); location.reload(); }
 
-
-        // ================= HỆ THỐNG LÕI (GIỮ NGUYÊN) =================
-        let phuongTienList = [], nhatKyList = [], vatTuList = [], currentFilter = 'all';
-
-        function showLoading(show, text = "Đang đồng bộ...") {
-            document.getElementById("loadingText").innerText = text;
-            document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
-        }
+        function showLoad(s) { document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none'; }
 
         async function fetchData() {
-            showLoading(true, "Đang tải dữ liệu...");
+            showLoad(true);
             try {
-                let response = await fetch(API_URL + "?action=getData");
-                let data = await response.json();
-                phuongTienList = data.phuongTien || [];
-                nhatKyList = data.nhatKy || [];
-                vatTuList = data.vatTu || [];
-                renderAll();
-            } catch (e) { console.log("Lỗi tải dữ liệu: " + e.message); }
-            showLoading(false);
+                const res = await fetch(API_URL + "?action=getData");
+                const json = await res.json();
+                fullData = normalizeData(json.phuongTien || []);
+                render(fullData);
+            } catch (e) { alert("Không thể kết nối dữ liệu!"); }
+            showLoad(false);
         }
 
-        async function saveToServer(sheetName, dataArray) {
-            showLoading(true, "Đang đẩy dữ liệu lên máy chủ...");
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'saveAll', sheetName: sheetName, data: dataArray })
-                });
-            } catch (e) {
-                console.log("Đã bỏ qua cảnh báo CORS ảo từ trình duyệt.");
-            }
-            await fetchData();
+        // Hàm chuẩn hóa dữ liệu: Tự động tìm cột kể cả khi Thành gõ sai hoa thường/dấu cách
+        function normalizeData(rawArray) {
+            return rawArray.map(item => {
+                let newItem = {};
+                for (let key in item) {
+                    let k = key.toLowerCase().replace(/\s/g, '');
+                    if (k.includes('loai')) newItem.Loai = item[key];
+                    if (k.includes('kyhieu')) newItem.KyHieu = item[key];
+                    if (k.includes('tinhtrang')) newItem.TinhTrang = item[key];
+                    if (k.includes('nguoiphu')) newItem.Nguoi = item[key];
+                    if (k.includes('tieudoi')) newItem.TieuDoi = item[key];
+                }
+                return newItem;
+            });
         }
 
-        function getStatusClass(status) {
-            const s = (status || '').toLowerCase();
-            if (s.includes('sẵn sàng') || s.includes('đầy đủ')) return 'status-tot';
-            if (s.includes('cần') || s.includes('sắp hết')) return 'status-can';
-            return 'status-hong';
+        function render(data) {
+            document.getElementById('count_all').innerText = fullData.length;
+            document.getElementById('count_ok').innerText = fullData.filter(i => (i.TinhTrang||'').includes('Sẵn sàng')).length;
+            document.getElementById('count_fix').innerText = fullData.filter(i => (i.TinhTrang||'').includes('bảo dưỡng')).length;
+            document.getElementById('count_bad').innerText = fullData.filter(i => (i.TinhTrang||'').includes('Hỏng')).length;
+
+            const list = document.getElementById('dataList');
+            if(data.length === 0) { list.innerHTML = '<div class="text-center mt-5 text-muted">Chưa có dữ liệu nào được tìm thấy.</div>'; return; }
+
+            list.innerHTML = data.map(i => {
+                let s = i.TinhTrang || '';
+                let borderClass = s.includes('Hỏng') ? 'status-bad' : s.includes('bảo dưỡng') ? 'status-fix' : 'status-ready';
+                let badgeClass = s.includes('Hỏng') ? 'bg-danger' : s.includes('bảo dưỡng') ? 'bg-warning text-dark' : 'bg-success';
+                
+                return `
+                    <div class="vehicle-card ${borderClass}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="fw-bold mb-1">${i.Loai || 'Chưa rõ loại'}</h6>
+                                <div class="small text-muted"><i class="fas fa-user"></i> ${i.Nguoi || 'Chưa rõ'} - ${i.TieuDoi || ''}</div>
+                            </div>
+                            <span class="badge ${badgeClass}">${s}</span>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-primary">${i.KyHieu || ''}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function renderAll() {
-            document.getElementById('total').textContent = phuongTienList.length;
-            document.getElementById('ready').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-tot').length;
-            document.getElementById('canSua').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-can').length;
-            document.getElementById('hong').textContent = phuongTienList.filter(i => getStatusClass(i.TinhTrang || i.tinhtrang) === 'status-hong').length;
-            
-            renderFilteredTable();
-            renderFullTable();
-            renderNhatKy();
-            renderVatTu();
-        }
-
-        function filterByStatus(filter, element) {
-            currentFilter = filter;
+        function filterData(status, el) {
             document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            if(element) element.classList.add('active');
-            renderFilteredTable();
-        }
-
-        function renderFilteredTable() {
-            const tbody = document.getElementById('dashboardTableBody'); tbody.innerHTML = '';
-            let f = phuongTienList.filter(i => currentFilter === 'all' || getStatusClass(i.TinhTrang || i.tinhtrang) === (currentFilter === 'san-sang' ? 'status-tot' : currentFilter === 'can-bd' ? 'status-can' : 'status-hong'));
-            f.forEach(item => {
-                let tt = item.TinhTrang || item.tinhtrang || '—';
-                tbody.innerHTML += `<tr><td><strong>${item.Loai || item.loai || ''}</strong></td><td>${item.KyHieu || item.kyhieu || ''}</td><td class="${getStatusClass(tt)}">${tt}</td><td>${item.NgayKiemDinh || item.ngaykiemtra || '—'}</td></tr>`;
-            });
-        }
-
-        function renderFullTable(data = phuongTienList) {
-            const tbody = document.getElementById('fullTableBody'); tbody.innerHTML = '';
-            data.forEach((item, index) => {
-                let tt = item.TinhTrang || item.tinhtrang || '';
-                tbody.innerHTML += `<tr><td><strong>${item.Loai || item.loai || ''}</strong></td><td>${item.KyHieu || item.kyhieu || ''}</td><td>${item.TieuDoi || item.tieudoi || ''}</td><td>${item.NguoiPhuTrach || item.nguoichutrachnhiem || ''}</td><td class="${getStatusClass(tt)}">${tt}</td><td><button class="btn btn-sm btn-outline-primary" onclick="editPT(${phuongTienList.indexOf(item)})"><i class="fas fa-edit"></i></button></td></tr>`;
-            });
-        }
-
-        function filterFullTable() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            renderFullTable(phuongTienList.filter(i => Object.values(i).join(' ').toLowerCase().includes(term)));
-        }
-
-        function renderNhatKy() {
-            const tbody = document.getElementById('logTableBody'); tbody.innerHTML = '';
-            nhatKyList.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.NgayThucHien || ''}</td><td><strong>${item.KyHieu || ''}</strong></td><td>${item.NoiDung || ''}</td><td>${item.NguoiThucHien || ''}</td></tr>`;
-            });
-        }
-
-        function renderVatTu() {
-            const tbody = document.getElementById('vattuTableBody'); tbody.innerHTML = '';
-            vatTuList.forEach((item, index) => {
-                let ton = parseInt(item.SoLuongTon || 0), muc = parseInt(item.DinhMucCanhBao || 0);
-                let tt = ton > muc ? "Đầy đủ" : (ton > 0 ? "Sắp hết" : "Đã hết");
-                tbody.innerHTML += `<tr><td><strong>${item.TenVatTu || ''}</strong></td><td>${ton}</td><td>${muc}</td><td class="${getStatusClass(tt)}">${tt}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="editVT(${index})"><i class="fas fa-edit"></i></button></td></tr>`;
-            });
-        }
-
-        // Chức năng Modal
-        function showAddModal() { document.getElementById('editIndexPT').value = -1; ['ptLoai','ptKyHieu','ptTieuDoi','ptNguoi','ptNgay'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('addModal')).show(); }
-        function editPT(idx) { 
-            const i = phuongTienList[idx]; document.getElementById('editIndexPT').value = idx;
-            document.getElementById('ptLoai').value = i.Loai || i.loai || ''; document.getElementById('ptKyHieu').value = i.KyHieu || i.kyhieu || '';
-            document.getElementById('ptTieuDoi').value = i.TieuDoi || i.tieudoi || ''; document.getElementById('ptNguoi').value = i.NguoiPhuTrach || i.nguoichutrachnhiem || '';
-            document.getElementById('ptTinhTrang').value = i.TinhTrang || i.tinhtrang || 'Sẵn sàng'; document.getElementById('ptNgay').value = i.NgayKiemDinh || i.ngaykiemtra || '';
-            new bootstrap.Modal(document.getElementById('addModal')).show();
-        }
-        function savePT() {
-            const idx = document.getElementById('editIndexPT').value;
-            const item = { Loai: document.getElementById('ptLoai').value, KyHieu: document.getElementById('ptKyHieu').value, TieuDoi: document.getElementById('ptTieuDoi').value, NguoiPhuTrach: document.getElementById('ptNguoi').value, TinhTrang: document.getElementById('ptTinhTrang').value, NgayKiemDinh: document.getElementById('ptNgay').value };
-            if(idx == -1) phuongTienList.push(item); else phuongTienList[idx] = item;
-            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide(); saveToServer('PhuongTien', phuongTienList);
-        }
-
-        function showLogModal() { document.getElementById('logNgay').valueAsDate = new Date(); ['logKyHieu','logNoiDung','logNguoi'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('logModal')).show(); }
-        function saveLog() {
-            const item = { NgayThucHien: document.getElementById('logNgay').value, KyHieu: document.getElementById('logKyHieu').value, NoiDung: document.getElementById('logNoiDung').value, NguoiThucHien: document.getElementById('logNguoi').value };
-            nhatKyList.unshift(item); bootstrap.Modal.getInstance(document.getElementById('logModal')).hide(); saveToServer('NhatKy', nhatKyList);
-        }
-
-        function showVatTuModal() { document.getElementById('editIndexVT').value = -1; ['vtTen','vtTon','vtCanhBao'].forEach(id => document.getElementById(id).value = ''); new bootstrap.Modal(document.getElementById('vatTuModal')).show(); }
-        function editVT(idx) { const i = vatTuList[idx]; document.getElementById('editIndexVT').value = idx; document.getElementById('vtTen').value = i.TenVatTu || ''; document.getElementById('vtTon').value = i.SoLuongTon || 0; document.getElementById('vtCanhBao').value = i.DinhMucCanhBao || 0; new bootstrap.Modal(document.getElementById('vatTuModal')).show(); }
-        function saveVT() {
-            const idx = document.getElementById('editIndexVT').value;
-            const item = { TenVatTu: document.getElementById('vtTen').value, SoLuongTon: document.getElementById('vtTon').value, DinhMucCanhBao: document.getElementById('vtCanhBao').value };
-            if(idx == -1) vatTuList.push(item); else vatTuList[idx] = item;
-            bootstrap.Modal.getInstance(document.getElementById('vatTuModal')).hide(); saveToServer('VatTu', vatTuList);
+            el.classList.add('active');
+            if(status === 'all') render(fullData);
+            else render(fullData.filter(i => (i.TinhTrang||'').includes(status)));
         }
     </script>
 </body>
